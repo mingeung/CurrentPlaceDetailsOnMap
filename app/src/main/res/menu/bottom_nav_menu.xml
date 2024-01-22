@@ -1,0 +1,15 @@
+<!-- bottom_nav_menu.xml -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_maps"
+        android:title="Map"
+        android:icon="@drawable/ic_map" />
+    <item
+        android:id="@+id/navigation_chat"
+        android:title="Chatting"
+        android:icon="@drawable/ic_chat" />
+    <item
+        android:id="@+id/navigation_mypage"
+        android:title="Mypage"
+        android:icon="@drawable/ic_mypage" />
+</menu>
