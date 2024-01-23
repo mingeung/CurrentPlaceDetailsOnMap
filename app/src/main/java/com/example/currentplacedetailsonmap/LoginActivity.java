@@ -37,15 +37,6 @@ public class LoginActivity extends AppCompatActivity {
         // OkHttp를 사용하여 백엔드로 데이터 전송
         OkHttpClient client = new OkHttpClient();
 
-        // Replace "your_server_url" with your server's URL
-
-//        String jsonData = String.format("{\"user_id\":\"%s\", \"password\":\"%s\"}", userId, password);
-//        RequestBody formBody = RequestBody.create(MediaType.parse("application/json"), jsonData);
-//        Request request = new Request.Builder()
-//                .url("http://172.10.7.13/login")
-//                .post(formBody)
-//                .build();
-
         String url = "http://172.10.7.13:80/login";
         RequestBody formBody = new FormBody.Builder()
                 .add("user_id", userId)

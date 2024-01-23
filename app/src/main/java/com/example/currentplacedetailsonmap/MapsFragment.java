@@ -29,9 +29,13 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.net.Socket;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import io.socket.client.IO;
+
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private static final String TAG = MapsFragment.class.getSimpleName();
@@ -52,28 +56,37 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private List[] likelyPlaceAttributions;
     private LatLng[] likelyPlaceLatLngs;
     private Socket socket;
+    private io.socket.client.Socket mSocket;
     private Timer locationUpdateTimer;
+    private MainActivity.LocationUpdateListener locationUpdateListener;
+
+
 
     private void sendLocationUpdate(LatLng location) {
-        if (socket != null && socket.connected()) {
+        // socket이 초기화되었고 연결된 상태인지 확인
+        if (mSocket != null && mSocket.connected()) {
             JSONObject locationData = new JSONObject();
             try {
+                // 위치 데이터를 JSONObject에 추가
                 locationData.put("latitude", location.latitude);
                 locationData.put("longitude", location.longitude);
             } catch (JSONException e) {
                 e.printStackTrace();
+                Log.e("websocketLocation", "JSON Exception while creating location data: " + e.getMessage());
             }
+            // 서버로 위치 업데이트 이벤트('updateLocation')를 발송
+            mSocket.emit("updateLocation", locationData);
 
-            socket.emit("updateLocation", locationData);
+            // 위치 업데이트 로그
+            Log.d("websocketLocation", "Location update sent to server - Latitude: " + location.latitude + ", Longitude: " + location.longitude);
+        }
+        else {
+            // 연결되지 않은 경우 에러 메시지 출력
+            Log.e("websocketLocation", "Socket is not initialized or not connected");
         }
     }
 
-    private void handleLocationUpdate(LatLng updatedLocation) {
-        // 사용자의 위치가 업데이트되었을 때 호출되는 메서드
-        // 예: 마커를 업데이트하거나 다른 처리를 수행할 수 있습니다.
-    }
-
-
+// 해당 Fragment가 처음으로 생성될 때 호출되며, 지도와 관련된 초기화 작업을 수행
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_maps, container, false);
@@ -86,7 +99,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         Places.initialize(requireContext(), BuildConfig.PLACES_API_KEY);
         placesClient = Places.createClient(requireContext());
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext());
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext());// 현재 위치 정보에 액세스하기 위한 클라이언트
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment == null) {
@@ -97,9 +110,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         return rootView;
     }
-    // ... (sendLocationUpdate 및 updateLocationUI 메서드 추가)
 
-
+// Fragment의 상태를 저장
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (map != null) {
@@ -108,7 +120,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
         super.onSaveInstanceState(outState);
     }
-
+//Google Map이 준비되었을 때 호출
     @Override
     public void onMapReady(GoogleMap googleMap) {
         map = googleMap;
@@ -134,14 +146,55 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         });
 
         getLocationPermission();
-        updateLocationUI();
         getDeviceLocation();
+        updateLocationUI();
+
+        // 소켓 초기화 및 연결
+        initSocketConnection();
+
         // 서버에서 위치 업데이트를 받아 처리
-
         startLocationUpdateTimer();
-
     }
 
+    //소켓 연결
+    private void initSocketConnection() {
+        try {
+            URI uri = new URI("http://172.10.7.13:80");
+            mSocket = IO.socket(uri);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        mSocket.on(mSocket.EVENT_CONNECT, args -> {
+            Log.d("Socket.IO", "Connected");
+        });
+
+        mSocket.on("locationUpdate", args -> {
+            Log.d("Socket.IO", "사용자 위치 불러오기 시도");
+            JSONObject data = (JSONObject) args[0];
+            try {
+                double latitude = data.getDouble("latitude");
+                double longitude = data.getDouble("longitude");
+
+                if (locationUpdateListener != null) {
+                    requireActivity().runOnUiThread(() -> {
+                        locationUpdateListener.onLocationUpdate(latitude, longitude);
+                        Log.d("Socket.IO", "위치 소켓 LocationUpdateListener called - Latitude: " + latitude + ", Longitude: " + longitude);
+                    });
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.e("Socket.IO", "위치 소켓 Error parsing locationUpdate data: " + e.getMessage());
+            }
+        });
+
+        mSocket.on(mSocket.EVENT_DISCONNECT, args -> {
+            Log.d("Socket.IO", "Disconnected");
+        });
+
+        mSocket.connect();
+    }
     private void startLocationUpdateTimer() {
         locationUpdateTimer = new Timer();
         locationUpdateTimer.scheduleAtFixedRate(new TimerTask() {
@@ -169,25 +222,34 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             locationUpdateTimer.purge();
         }
     }
-
+//현재 기기의 위치를 가져와 지도를 해당 위치로 이동
     private void getDeviceLocation() {
         try {
+            // 위치 권한이 허용된 경우
             if (locationPermissionGranted) {
+                // FusedLocationProviderClient를 사용하여 마지막으로 알려진 위치를 가져옵니다.
                 Task<Location> locationResult = fusedLocationProviderClient.getLastLocation();
                 locationResult.addOnCompleteListener(requireActivity(), new OnCompleteListener<Location>() {
                     @Override
                     public void onComplete(@NonNull Task<Location> task) {
+                        // 작업이 성공적으로 완료된 경우
                         if (task.isSuccessful()) {
+                            // 가져온 위치를 lastKnownLocation에 저장합니다.
                             lastKnownLocation = task.getResult();
+                            // 위치가 null이 아닌 경우
                             if (lastKnownLocation != null) {
+                                // 맵을 해당 위치로 이동시킵니다.
                                 map.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                         new LatLng(lastKnownLocation.getLatitude(),
                                                 lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
                             }
                         } else {
+                            // 위치를 가져오는 데 실패한 경우
                             Log.d(TAG, "Current location is null. Using defaults.");
                             Log.e(TAG, "Exception: %s", task.getException());
+                            // 기본 위치로 맵을 이동시킵니다.
                             map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, DEFAULT_ZOOM));
+                            // 현재 위치 버튼 비활성화
                             map.getUiSettings().setMyLocationButtonEnabled(false);
                         }
                     }
@@ -221,7 +283,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
         updateLocationUI();
     }
-
     private void showCurrentPlace() {
         // Implement your logic for showing current place here
     }
