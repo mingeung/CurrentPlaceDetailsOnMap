@@ -22,6 +22,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
@@ -31,11 +32,11 @@ import org.json.JSONObject;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import io.socket.client.IO;
-
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private static final String TAG = MapsFragment.class.getSimpleName();
@@ -59,6 +60,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private io.socket.client.Socket mSocket;
     private Timer locationUpdateTimer;
     private MainActivity.LocationUpdateListener locationUpdateListener;
+    //지도에 표시할 마커 목록
+    private List<Marker> otherUsersMarkers = new ArrayList<>();
+
 
 
 
@@ -75,8 +79,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 Log.e("websocketLocation", "JSON Exception while creating location data: " + e.getMessage());
             }
             // 서버로 위치 업데이트 이벤트('updateLocation')를 발송
-            mSocket.emit("updateLocation", locationData);
 
+//            mSocket.emit("askLocationUpdate", locationData, user_id, locationroomId); // user_id, locationroomId 받아와야 함!!!!!!!
+            mSocket.emit("askLocationUpdate", locationData, "jmk2229", 1); // 하드코딩
             // 위치 업데이트 로그
             Log.d("websocketLocation", "Location update sent to server - Latitude: " + location.latitude + ", Longitude: " + location.longitude);
         }
@@ -165,19 +170,20 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             e.printStackTrace();
             return;
         }
-
         mSocket.on(mSocket.EVENT_CONNECT, args -> {
             Log.d("Socket.IO", "Connected");
         });
 
-        mSocket.on("locationUpdate", args -> {
-            Log.d("Socket.IO", "사용자 위치 불러오기 시도");
+        //다른 사람 위치 정보 불러오기
+        mSocket.on("getOtherlocation", args -> {
+            Log.d("Socket.IO", "다른 사용자 위치 불러오기 시도");
             JSONObject data = (JSONObject) args[0];
             try {
                 double latitude = data.getDouble("latitude");
                 double longitude = data.getDouble("longitude");
 
-                if (locationUpdateListener != null) {
+                LatLng userLocation = new LatLng(latitude, longitude);
+                updateOtherUsersMarker(userLocation);if (locationUpdateListener != null) {
                     requireActivity().runOnUiThread(() -> {
                         locationUpdateListener.onLocationUpdate(latitude, longitude);
                         Log.d("Socket.IO", "위치 소켓 LocationUpdateListener called - Latitude: " + latitude + ", Longitude: " + longitude);
@@ -185,7 +191,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
-                Log.e("Socket.IO", "위치 소켓 Error parsing locationUpdate data: " + e.getMessage());
+                Log.e("Socket.IO", "다른 사용자 위치 불러오기 실패 Error parsing locationUpdate data: " + e.getMessage());
             }
         });
 
@@ -195,6 +201,26 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         mSocket.connect();
     }
+
+    private void updateOtherUsersMarker(LatLng location) {
+        // 마커가 이미 추가되어 있다면 업데이트, 없다면 새로 추가
+        if (!otherUsersMarkers.isEmpty()) {
+            Marker marker = otherUsersMarkers.get(0);  // 여러 마커가 있는 경우에 대한 처리를 추가해야 할 수 있습니다.
+            marker.setPosition(location);
+        } else {
+            Marker newMarker = map.addMarker(new MarkerOptions().position(location).title("다른 사용자"));
+            otherUsersMarkers.add(newMarker);
+        }
+    }
+
+    private void removeOtherUsersMarkers() {
+        // 모든 다른 사용자 마커 제거
+        for (Marker marker : otherUsersMarkers) {
+            marker.remove();
+        }
+        otherUsersMarkers.clear();
+    }
+
     private void startLocationUpdateTimer() {
         locationUpdateTimer = new Timer();
         locationUpdateTimer.scheduleAtFixedRate(new TimerTask() {
