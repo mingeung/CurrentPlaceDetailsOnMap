@@ -6,7 +6,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -17,8 +16,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import androidx.appcompat.app.AppCompatActivity;
-
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import io.socket.client.IO;
@@ -30,9 +27,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.Toast;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -108,11 +103,10 @@ public class MainActivity extends AppCompatActivity {
 
         mSocket.on(Socket.EVENT_CONNECT, args -> {
             Log.d("Socket.IO", "Connected");
-            mSocket.emit("message", "Hello, Server!"); // Sending a message
         });
 
         mSocket.on("locationUpdate", args -> {
-            Log.d("Socket.IO", "사용자 위치 불러오기 시도"); //여기를 try조차 하고 있지 않다.
+            Log.d("Socket.IO", "사용자 위치 불러오기 시도");
             JSONObject data = (JSONObject) args[0];
             try {
 

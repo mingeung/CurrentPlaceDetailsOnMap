@@ -1,6 +1,5 @@
 package com.example.currentplacedetailsonmap;
 
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -10,13 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -26,52 +22,57 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
-import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.PlaceLikelihood;
-import com.google.android.libraries.places.api.net.FindCurrentPlaceRequest;
-import com.google.android.libraries.places.api.net.FindCurrentPlaceResponse;
 import com.google.android.libraries.places.api.net.PlacesClient;
-
-import java.util.Arrays;
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.net.Socket;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MapsFragment extends Fragment implements OnMapReadyCallback {
-
     private static final String TAG = MapsFragment.class.getSimpleName();
     private GoogleMap map;
     private CameraPosition cameraPosition;
-
-    // The entry point to the Places API.
     private PlacesClient placesClient;
-
-    // The entry point to the Fused Location Provider.
     private FusedLocationProviderClient fusedLocationProviderClient;
-
-    // A default location (Sydney, Australia) and default zoom to use when location permission is
-    // not granted.
     private final LatLng defaultLocation = new LatLng(-33.8523341, 151.2106085);
     private static final int DEFAULT_ZOOM = 15;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
     private boolean locationPermissionGranted;
-
-    // The geographical location where the device is currently located. That is, the last-known
-    // location retrieved by the Fused Location Provider.
     private Location lastKnownLocation;
-
-    // Keys for storing fragment state.
     private static final String KEY_CAMERA_POSITION = "camera_position";
     private static final String KEY_LOCATION = "location";
-
-    // Used for selecting the current place.
     private static final int M_MAX_ENTRIES = 5;
     private String[] likelyPlaceNames;
     private String[] likelyPlaceAddresses;
     private List[] likelyPlaceAttributions;
     private LatLng[] likelyPlaceLatLngs;
+    private Socket socket;
+    private Timer locationUpdateTimer;
+
+    private void sendLocationUpdate(LatLng location) {
+        if (socket != null && socket.connected()) {
+            JSONObject locationData = new JSONObject();
+            try {
+                locationData.put("latitude", location.latitude);
+                locationData.put("longitude", location.longitude);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            socket.emit("updateLocation", locationData);
+        }
+    }
+
+    private void handleLocationUpdate(LatLng updatedLocation) {
+        // 사용자의 위치가 업데이트되었을 때 호출되는 메서드
+        // 예: 마커를 업데이트하거나 다른 처리를 수행할 수 있습니다.
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -96,6 +97,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
         return rootView;
     }
+    // ... (sendLocationUpdate 및 updateLocationUI 메서드 추가)
+
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -133,6 +136,38 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         getLocationPermission();
         updateLocationUI();
         getDeviceLocation();
+        // 서버에서 위치 업데이트를 받아 처리
+
+        startLocationUpdateTimer();
+
+    }
+
+    private void startLocationUpdateTimer() {
+        locationUpdateTimer = new Timer();
+        locationUpdateTimer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                if (lastKnownLocation != null) {
+                    LatLng currentLocation = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+                    sendLocationUpdate(currentLocation);
+                }
+            }
+        }, 0, 3000); // 3초마다 위치 업데이트
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+
+        // Fragment가 소멸되면 타이머 중지
+        stopLocationUpdateTimer();
+    }
+
+    private void stopLocationUpdateTimer() {
+        if (locationUpdateTimer != null) {
+            locationUpdateTimer.cancel();
+            locationUpdateTimer.purge();
+        }
     }
 
     private void getDeviceLocation() {

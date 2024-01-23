@@ -34,36 +34,28 @@ public class LoginActivity extends AppCompatActivity {
         String userId = ((EditText) findViewById(R.id.idInput)).getText().toString();
         String password = ((EditText) findViewById(R.id.passwordInput)).getText().toString();
 
-//        String jsonData = String.format("{\"start_time\": \"%s\", \"end_time\": \"%s\", \"room\": \"A\", \"user_id\": \"%s\"}",start_time,end_time, user_id);
-//        RequestBody formBody = RequestBody.create(MediaType.parse("application/json"), jsonData);
-//        Request request = new Request.Builder()
-//                .url("http://172.10.7.29:80/room_state") // Replace with your actual Flask server endpoint
-//                .post(formBody)
-//                .build();
-
-
         // OkHttp를 사용하여 백엔드로 데이터 전송
         OkHttpClient client = new OkHttpClient();
 
         // Replace "your_server_url" with your server's URL
-//        String url = "http://172.10.7.13:80/login";
-        String jsonData = String.format("{\"user_id\":\"%s\", \"password\":\"%s\"}", userId, password);
-        RequestBody formBody = RequestBody.create(MediaType.parse("application/json"), jsonData);
-        Request request = new Request.Builder()
-                .url("http://172.10.7.13/login")
-                .post(formBody)
-                .build();
 
-
-//        RequestBody formBody = new FormBody.Builder()
-//                .add("user_id", userId)
-//                .add("password", password)
-//                .build();
-//
+//        String jsonData = String.format("{\"user_id\":\"%s\", \"password\":\"%s\"}", userId, password);
+//        RequestBody formBody = RequestBody.create(MediaType.parse("application/json"), jsonData);
 //        Request request = new Request.Builder()
-//                .url(url)
+//                .url("http://172.10.7.13/login")
 //                .post(formBody)
 //                .build();
+
+        String url = "http://172.10.7.13:80/login";
+        RequestBody formBody = new FormBody.Builder()
+                .add("user_id", userId)
+                .add("password", password)
+                .build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(formBody)
+                .build();
 
         client.newCall(request).enqueue(new Callback() {
             public void onResponse(Call call, Response response) throws IOException {
