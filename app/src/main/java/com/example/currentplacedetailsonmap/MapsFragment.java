@@ -1,5 +1,7 @@
 package com.example.currentplacedetailsonmap;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -65,31 +67,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 
 
 
-
-    private void sendLocationUpdate(LatLng location) {
-        // socket이 초기화되었고 연결된 상태인지 확인
-        if (mSocket != null && mSocket.connected()) {
-            JSONObject locationData = new JSONObject();
-            try {
-                // 위치 데이터를 JSONObject에 추가
-                locationData.put("latitude", location.latitude);
-                locationData.put("longitude", location.longitude);
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.e("websocketLocation", "JSON Exception while creating location data: " + e.getMessage());
-            }
-            // 서버로 위치 업데이트 이벤트('updateLocation')를 발송
-
-//            mSocket.emit("askLocationUpdate", locationData, user_id, locationroomId); // user_id, locationroomId 받아와야 함!!!!!!!
-            mSocket.emit("askLocationUpdate", locationData, "jmk2229", 1); // 하드코딩
-            // 위치 업데이트 로그
-            Log.d("websocketLocation", "Location update sent to server - Latitude: " + location.latitude + ", Longitude: " + location.longitude);
-        }
-        else {
-            // 연결되지 않은 경우 에러 메시지 출력
-            Log.e("websocketLocation", "Socket is not initialized or not connected");
-        }
+    public static MapsFragment newInstance() {
+        MapsFragment fragment = new MapsFragment();
+        return fragment;
     }
+
+
 
 // 해당 Fragment가 처음으로 생성될 때 호출되며, 지도와 관련된 초기화 작업을 수행
     @Override
@@ -112,11 +95,57 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             getChildFragmentManager().beginTransaction().replace(R.id.map, mapFragment).commit();
         }
         mapFragment.getMapAsync(this);
+        //앱이 강제종료되는 이유 분석
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable ex) {
+                Log.e(TAG, "Uncaught Exception: " + ex.getMessage(), ex);
+            }
+        });
+
+
 
         return rootView;
     }
 
-// Fragment의 상태를 저장
+    private void sendLocationUpdate(LatLng location) {
+        int locationroomId = 1;  // 테스트에 사용할 locationroomId로 업데이트
+        // MapsFragment에서 저장된 userId 불러오기
+        String userId = getSavedUserId();
+        Log.d("MapsFragment", "User ID from SharedPreferences: " + userId);
+        Log.d("MapsFragment", "RoomId" + locationroomId);
+
+        // socket이 초기화되었고 연결된 상태인지 확인
+        if (mSocket != null && mSocket.connected()) {
+            JSONObject locationData = new JSONObject();
+            try {
+                // 위치 데이터를 JSONObject에 추가
+                locationData.put("latitude", location.latitude);
+                locationData.put("longitude", location.longitude);
+                locationData.put("userId", userId);
+                locationData.put("locationroomId", locationroomId);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.e("websocketLocation", "JSON Exception while creating location data: " + e.getMessage());
+            }
+            // 서버로 위치 업데이트 이벤트('updateLocation')를 발송
+            mSocket.emit("askLocationUpdate", locationData);
+            // 위치 업데이트 로그
+            Log.d("websocketLocation", "Location update sent to server - Latitude: " + location.latitude + ", Longitude: " + location.longitude);
+        } else {
+            // 연결되지 않은 경우 에러 메시지 출력
+            Log.e("websocketLocation", "Socket is not initialized or not connected");
+        }
+    }
+
+    // SharedPreferences에서 저장된 userId 불러오기
+    private String getSavedUserId() {
+        SharedPreferences prefs = requireActivity().getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
+        return prefs.getString("userId", "");
+    }
+
+
+    // Fragment의 상태를 저장
     @Override
     public void onSaveInstanceState(Bundle outState) {
         if (map != null) {
@@ -128,53 +157,60 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
 //Google Map이 준비되었을 때 호출
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        map = googleMap;
+        try {
+            map = googleMap;
 
-        map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
-            @Override
-            public View getInfoWindow(Marker arg0) {
-                return null;
-            }
+            map.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                @Override
+                public View getInfoWindow(Marker arg0) {
+                    return null;
+                }
 
-            @Override
-            public View getInfoContents(Marker marker) {
-                View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_contents, (FrameLayout) getView().findViewById(R.id.map), false);
+                @Override
+                public View getInfoContents(Marker marker) {
+                    View infoWindow = getLayoutInflater().inflate(R.layout.custom_info_contents, (FrameLayout) getView().findViewById(R.id.map), false);
 
-                TextView title = infoWindow.findViewById(R.id.title);
-                title.setText(marker.getTitle());
+                    TextView title = infoWindow.findViewById(R.id.title);
+                    title.setText(marker.getTitle());
 
-                TextView snippet = infoWindow.findViewById(R.id.snippet);
-                snippet.setText(marker.getSnippet());
+                    TextView snippet = infoWindow.findViewById(R.id.snippet);
+                    snippet.setText(marker.getSnippet());
 
-                return infoWindow;
-            }
-        });
+                    return infoWindow;
+                }
+            });
 
-        getLocationPermission();
-        getDeviceLocation();
-        updateLocationUI();
+            getLocationPermission();
+            getDeviceLocation();
+            updateLocationUI();
 
-        // 소켓 초기화 및 연결
-        initSocketConnection();
+            // 소켓 초기화 및 연결
+            initSocketConnection();
 
-        // 서버에서 위치 업데이트를 받아 처리
-        startLocationUpdateTimer();
+            // 서버에서 위치 업데이트를 받아 처리
+            startLocationUpdateTimer();
+        } catch (Exception e)  {
+            Log.e(TAG, "Exception in onMapReady: " + e.getMessage(), e);
+        }
     }
 
     //소켓 연결
     private void initSocketConnection() {
-        try {
-            URI uri = new URI("http://172.10.7.13:80");
-            mSocket = IO.socket(uri);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            return;
-        }
-        mSocket.on(mSocket.EVENT_CONNECT, args -> {
-            Log.d("Socket.IO", "Connected");
-        });
 
-        //다른 사람 위치 정보 불러오기
+        // 소켓이 null인 경우 초기화
+        if (mSocket == null) {
+            try {
+                URI uri = new URI("http://172.10.7.13:80");
+                mSocket = IO.socket(uri);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+
+        mSocket = MainActivity.getmSocket();
+
+        //다른 사람 위치 정보 불러오기 -> 이 부분이 안 되고 있다.
         mSocket.on("getOtherlocation", args -> {
             Log.d("Socket.IO", "다른 사용자 위치 불러오기 시도");
             JSONObject data = (JSONObject) args[0];
@@ -186,7 +222,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 updateOtherUsersMarker(userLocation);if (locationUpdateListener != null) {
                     requireActivity().runOnUiThread(() -> {
                         locationUpdateListener.onLocationUpdate(latitude, longitude);
-                        Log.d("Socket.IO", "위치 소켓 LocationUpdateListener called - Latitude: " + latitude + ", Longitude: " + longitude);
+                        Log.d("Socket.IO", "다른 사용자 위치 소켓 LocationUpdateListener called - Latitude: " + latitude + ", Longitude: " + longitude);
                     });
                 }
             } catch (JSONException e) {
@@ -203,15 +239,31 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void updateOtherUsersMarker(LatLng location) {
+        try{
         // 마커가 이미 추가되어 있다면 업데이트, 없다면 새로 추가
         if (!otherUsersMarkers.isEmpty()) {
-            Marker marker = otherUsersMarkers.get(0);  // 여러 마커가 있는 경우에 대한 처리를 추가해야 할 수 있습니다.
-            marker.setPosition(location);
+            final Marker marker = otherUsersMarkers.get(0);  // 여러 마커가 있는 경우에 대한 처리를 추가해야 할 수 있습니다.
+            requireActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    marker.setPosition(location);
+                }
+            });
         } else {
-            Marker newMarker = map.addMarker(new MarkerOptions().position(location).title("다른 사용자"));
-            otherUsersMarkers.add(newMarker);
+            requireActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    Marker newMarker = map.addMarker(new MarkerOptions().position(location).title("다른 사용자"));
+                    otherUsersMarkers.add(newMarker);
+                }
+            });
+        }}
+        catch (Exception e) {
+            e.printStackTrace();
+            Log.e("Socket.IO", "Error updating other users marker: " + e.getMessage());
         }
     }
+
 
     private void removeOtherUsersMarkers() {
         // 모든 다른 사용자 마커 제거

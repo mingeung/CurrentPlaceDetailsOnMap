@@ -2,7 +2,10 @@ package com.example.currentplacedetailsonmap;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
+import android.view.textclassifier.TextSelection;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -11,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -29,28 +33,31 @@ public class SignupActivity extends AppCompatActivity {
 
     public void onSignupButtonClick(View view) {
         // 사용자 입력 데이터 가져오기
-        String userId = ((EditText) findViewById(R.id.signupIdInput)).getText().toString();
+        String user_id = ((EditText) findViewById(R.id.signupIdInput)).getText().toString();
         String email = ((EditText) findViewById(R.id.signupEmailInput)).getText().toString();
         String nickname = ((EditText) findViewById(R.id.signupNicknameInput)).getText().toString();
         String password = ((EditText) findViewById(R.id.signupPasswordInput)).getText().toString();
+
+
+        // 이메일 유효성 검사
+        if (!isValidEmail(email)) {
+            Toast.makeText(this, "올바른 이메일 주소를 입력하세요", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         // OkHttp를 사용하여 백엔드로 데이터 전송
         OkHttpClient client = new OkHttpClient();
 
         // Replace "your_server_url" with your server's URL and "/signup" with your signup route
-        String url = "https://172.10.7.13:80/signup";
+        String url = "http://172.10.7.13:80/signup";
 
-        RequestBody formBody = new FormBody.Builder()
-                .add("user_id", userId)
-                .add("email", email)
-                .add("nickname", nickname)
-                .add("password", password)
-                .build();
-
+        String jsonData = String.format("{\"user_id\":\"%s\", \"email\": \"%s\", \"nickname\":\"%s\", \"password\":\"%s\"}", user_id, email, nickname, password);
+        RequestBody formBody = RequestBody.create(MediaType.parse("application/json"), jsonData);
         Request request = new Request.Builder()
-                .url(url)
+                .url("http://172.10.7.13:80/signup")
                 .post(formBody)
                 .build();
+
 
         client.newCall(request).enqueue(new Callback() {
             @Override
@@ -62,6 +69,9 @@ public class SignupActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
                         Toast.makeText(SignupActivity.this, "회원가입 성공", Toast.LENGTH_SHORT).show();
                     });
+                    Intent intent = new Intent(SignupActivity.this, MainActivity.class);
+
+                    startActivity(intent);
                 } else {
                     // 실패 시 처리
                     // 서버 응답이 실패한 경우 추가 처리
@@ -70,24 +80,18 @@ public class SignupActivity extends AppCompatActivity {
                     });
                 }
             }
-
             @Override
             public void onFailure(Call call, IOException e) {
                 // 통신 실패 시 처리
-                // 원하는 처리를 추가하세요
                 runOnUiThread(() -> {
                     Toast.makeText(SignupActivity.this, "서버 통신 실패", Toast.LENGTH_SHORT).show();
+                    Log.e("SignupActivity", "서버 통신 실패: " + e.getMessage());
                 });
             }
         });
 
-        // MainActivity로 이동하는 Intent 생성
-        Intent intent = new Intent(this, MainActivity.class);
-        // 다른 데이터를 전달하려면 여기에 추가 가능
-        // 예: intent.putExtra("key", value);
-        // ...
-
-        // MainActivity로 이동
-        startActivity(intent);
+    }
+    private boolean isValidEmail(String email) {
+        return Patterns.EMAIL_ADDRESS.matcher(email).matches();
     }
 }

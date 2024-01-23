@@ -1,5 +1,11 @@
 package com.example.currentplacedetailsonmap;
 
+import static com.example.currentplacedetailsonmap.LoginActivity.KEY_USER_ID;
+import static com.example.currentplacedetailsonmap.LoginActivity.PREF_NAME;
+
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -15,12 +21,20 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
-    private Socket mSocket;
+    private  static Socket mSocket;
     private LocationUpdateListener locationUpdateListener;
+
+    //소켓을 반환하는 메소드
+    public static Socket getmSocket() {
+        return mSocket;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // SharedPreferences에서 사용자 ID 읽어오기
+        String userId = getUserIdFromSharedPreferences();
 
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -50,78 +64,89 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.fragment_container, new MapsFragment())
                 .commit();
 
-        new ConnectSocketIOAsyncTask().execute();
-
-
-
+        new ConnectSocketIOAsyncTask(userId).execute();
     }
+
+    // SharedPreferences에서 사용자 ID 읽어오는 메서드
+    private String getUserIdFromSharedPreferences() {
+        SharedPreferences sharedPreferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        return sharedPreferences.getString(KEY_USER_ID, "");
+    }
+
 
     // 내부 인터페이스로 LocationUpdateListener 선언
     public interface LocationUpdateListener {
         void onLocationUpdate(double latitude, double longitude);
     }
 
-    public void setLocationUpdateListener(LocationUpdateListener listener) {
-        this.locationUpdateListener = listener;
-    }
 
     private class ConnectSocketIOAsyncTask extends AsyncTask<Void, Void, Void> {
+        private String userId;
+
+        // 생성자를 통해 userId를 전달받도록 변경
+        public ConnectSocketIOAsyncTask(String userId) {
+            this.userId = userId;
+        }
+
         @Override
         protected Void doInBackground(Void... params) {
-            Log.d("ConnectSocketIOAsyncTask", "Connecting to Socket.IO server...");
+            // 백그라운드 작업 수행
             connectSocketIO();
-            Log.d("ConnectSocketIOAsyncTask", "Socket.IO connection established.");
             return null;
         }
-    }
-
-    private void connectSocketIO() {
-        try {
-            URI uri = new URI("http://172.10.7.13:80");
-            mSocket = IO.socket(uri);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            return;
+        @Override
+        protected void onPostExecute(Void result) {
+            // UI 스레드에서 호출되는 메서드
+            connectSocketIO();
         }
+        private void connectSocketIO() {
 
-        mSocket.on(Socket.EVENT_CONNECT, args -> {
-            Log.d("Socket.IO", "Connected");
-        });
-
-        mSocket.on("locationUpdate", args -> {
-            Log.d("Socket.IO", "사용자 위치 불러오기 시도");
-            JSONObject data = (JSONObject) args[0];
             try {
-
-                double latitude = data.getDouble("latitude");
-                double longitude = data.getDouble("longitude");
-
-                if (locationUpdateListener != null) {
-                    runOnUiThread(() -> {
-                        locationUpdateListener.onLocationUpdate(latitude, longitude);
-                        Log.d("Socket.IO", "위치 소켓 LocationUpdateListener called - Latitude: " + latitude + ", Longitude: " + longitude);
-                    });
-                }
-            } catch (JSONException e) {
+                URI uri = new URI("http://172.10.7.13:80");
+                mSocket = IO.socket(uri);
+            } catch (URISyntaxException e) {
                 e.printStackTrace();
-                Log.e("Socket.IO", "위치 소켓 Error parsing locationUpdate data: " + e.getMessage());
+                return;
             }
-        });
 
-        mSocket.on("message", args -> {
-            String message = (String) args[0];
-            Log.d("Socket.IO", "Received message: " + message);
+            mSocket.on(Socket.EVENT_CONNECT, args -> {
+                Log.d("Socket.IO", "Connected");
+            });
 
-            runOnUiThread(() -> showToast("Received message: " + message));
-        });
+            mSocket.on("locationUpdate", args -> {
+                Log.d("Socket.IO", "사용자 위치 불러오기 시도");
+                JSONObject data = (JSONObject) args[0];
+                try {
 
-        mSocket.on(Socket.EVENT_DISCONNECT, args -> {
-            Log.d("Socket.IO", "Disconnected");
-        });
+                    double latitude = data.getDouble("latitude");
+                    double longitude = data.getDouble("longitude");
 
+                    if (locationUpdateListener != null) {
+                        runOnUiThread(() -> {
+                            locationUpdateListener.onLocationUpdate(latitude, longitude);
+                            Log.d("Socket.IO", "위치 소켓 LocationUpdateListener called - Latitude: " + latitude + ", Longitude: " + longitude);
+                        });
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e("Socket.IO", "위치 소켓 Error parsing locationUpdate data: " + e.getMessage());
+                }
+            });
 
+            mSocket.on("message", args -> {
+                String message = (String) args[0];
+                Log.d("Socket.IO", "Received message: " + message);
 
-        mSocket.connect();
+                runOnUiThread(() -> showToast("Received message: " + message));
+            });
+            //여기 userid가 필요함
+            mSocket.emit("setUser", userId);
+
+            mSocket.on(Socket.EVENT_DISCONNECT, args -> {
+                Log.d("Socket.IO", "Disconnected");
+            });
+            mSocket.connect();
+        }
     }
 
     private void showToast(String message) {
