@@ -16,7 +16,7 @@
         android:layout_marginBottom="16dp"/>
 
     <EditText
-        android:id="@+id/nicknameInput"
+        android:id="@+id/signupNicknameInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/signupText"
@@ -24,26 +24,26 @@
         android:hint="nickname" />
 
     <EditText
-        android:id="@+id/idInput"
+        android:id="@+id/signupIdInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/nicknameInput"
+        android:layout_below="@id/signupNicknameInput"
         android:layout_marginTop="16dp"
         android:hint="id" />
 
     <EditText
-        android:id="@+id/emailInput"
+        android:id="@+id/signupEmailInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/idInput"
+        android:layout_below="@id/signupIdInput"
         android:layout_marginTop="16dp"
         android:hint="email" />
 
     <EditText
-        android:id="@+id/passwordInput"
+        android:id="@+id/signupPasswordInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/emailInput"
+        android:layout_below="@id/signupEmailInput"
         android:layout_marginTop="16dp"
         android:hint="password"
         android:inputType="textPassword" />
@@ -53,7 +53,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="SIGN UP"
-        android:layout_below="@id/passwordInput"
+        android:layout_below="@id/signupPasswordInput"
         android:layout_marginTop="16dp"
         android:onClick="onSignupButtonClick" />
 </RelativeLayout>
