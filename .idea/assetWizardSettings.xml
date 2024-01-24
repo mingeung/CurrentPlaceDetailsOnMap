@@ -11,24 +11,10 @@
                   <entry key="vectorAssetStep">
                     <value>
                       <PersistentState>
-                        <option name="children">
-                          <map>
-                            <entry key="clipartAsset">
-                              <value>
-                                <PersistentState>
-                                  <option name="values">
-                                    <map>
-                                      <entry key="url" value="file:$USER_HOME$/Library/Android/sdk/icons/material/materialicons/person_2/baseline_person_2_24.xml" />
-                                    </map>
-                                  </option>
-                                </PersistentState>
-                              </value>
-                            </entry>
-                          </map>
-                        </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="default_profile_image" />
+                            <entry key="outputName" value="ic_chat" />
+                            <entry key="sourceFile" value="C:\Users\Kim Seoyeon\Desktop\Madcamp\CurrentPlaceDetailsOnMap" />
                           </map>
                         </option>
                       </PersistentState>

@@ -32,37 +32,40 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.MediaType;
 import android.util.Log;
-
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
-
-public class ChattingFragment extends Fragment {
+public class ChattingRoomFragment extends Fragment {
 
     private RecyclerView recyclerView;
-    private ChatRoomAdapter chatRoomAdapter;
-    //private Button addButton;
-    private List<ChatRoom> chatRooms = new ArrayList<>();
+    private ChattingAdapter chattingAdapter;
+    private List<Chat> chattings = new ArrayList<>();
+    private String chatroomId;
+    private String roomName;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_chatting, container, false);
+        View view = inflater.inflate(R.layout.fragment_chatting_room, container, false);
 
-        recyclerView = view.findViewById(R.id.recyclerView);
-        chatRoomAdapter = new ChatRoomAdapter(chatRooms);
+        Bundle args = getArguments();
+        if (args != null) {
+            chatroomId = args.getString("chatroomId", "");
+            roomName = args.getString("roomName", "");
+        }
+
+        recyclerView = view.findViewById(R.id.messageView);
+        chattingAdapter = new ChattingAdapter(chattings);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recyclerView.setAdapter(chatRoomAdapter);
+        recyclerView.setAdapter(chattingAdapter);
 
-        ((MainActivity) requireActivity()).getSocket().on("joinRoom", onJoinRoom);
+        ((MainActivity) requireActivity()).getSocket().on("receivemessege", onReceiveMessege);
 
-        Button addButton = view.findViewById(R.id.createBtn);
+        Button sendButton = view.findViewById(R.id.sendButton);
         CardView centeredCardView = view.findViewById(R.id.centeredCardView);
+        Button invitebutton = view.findViewById(R.id.invitebutton);
         Button cancelButton = view.findViewById(R.id.cancelButton);
         Button submitButton = view.findViewById(R.id.submitButton);
+        EditText messageBox = view.findViewById(R.id.messageBox);
         EditText editText = view.findViewById(R.id.editText);
-        addButton.setOnClickListener(new View.OnClickListener() {
+        invitebutton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 centeredCardView.setVisibility(View.VISIBLE);
@@ -81,42 +84,57 @@ public class ChattingFragment extends Fragment {
             public void onClick(View v) {
                 centeredCardView.setVisibility(View.GONE);
 
-               try {
-                    String userId = "test"; //SharedPreference로 바꾸기
-                    String chatroomId = RandomStringUtil.generateRandomString(36);
-                    String locationroomId = RandomStringUtil.generateRandomString(36);
-                    String roomName = editText.getText().toString();
+                try {
+                    String invitedId = editText.getText().toString();
 
                     JSONObject eventData = new JSONObject();
-                    eventData.put("userId", userId);
-                    eventData.put("chatroomId", chatroomId);
-                    eventData.put("locationroomId", locationroomId);
+                    eventData.put("invitedId", invitedId);
+                    eventData.put("roomId", chatroomId);
                     eventData.put("roomName", roomName);
 
-                    ((MainActivity) requireActivity()).getSocket().emit("createRoom", eventData);
+                    ((MainActivity) requireActivity()).getSocket().emit("invitation", eventData);
 
-                    Log.d("Socket createRoom", "createRoom event emitted successfully");
-               } catch (JSONException e) {
+                    Log.d("Socket invitation", "createRoom event emitted successfully");
+                } catch (JSONException e) {
                     e.printStackTrace();
-                    Log.e("Socket createRoom", "JSONException: " + e.getMessage());
-               }
+                    Log.e("Socket invitation", "JSONException: " + e.getMessage());
+                }
                 editText.setText("");
             }
         });
 
-        chatRoomAdapter.setOnItemClickListener(chatRoom -> {
-            String clickedChatroomId = chatRoom.getChatroomId();
-            String clickedChatroomName = chatRoom.getRoomName();
-            switchToNextFragment(clickedChatroomId,clickedChatroomName);
+        sendButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                try {
+                    String userId = "test"; //SharedPreference로 바꾸기
+                    String category = "text"; //+image
+                    String content = messageBox.getText().toString();
+
+                    JSONObject eventData = new JSONObject();
+                    eventData.put("userId", userId);
+                    eventData.put("roomId", chatroomId);
+                    eventData.put("content", content);
+                    eventData.put("category", category);
+
+                    ((MainActivity) requireActivity()).getSocket().emit("message", eventData);
+
+                    Log.d("Socket message", "message event emitted successfully");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.e("Socket message", "JSONException: " + e.getMessage());
+                }
+                messageBox.setText("");
+            }
         });
 
         OkHttpClient client = new OkHttpClient();
         //SharedPreferences preferences = requireActivity().getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
-        String user_id = "test";
-        String jsonData = String.format("{\"user_id\": \"%s\"}",user_id);
+        String jsonData = String.format("{\"room_id\": \"%s\"}",chatroomId);
         RequestBody formBody = RequestBody.create(MediaType.parse("application/json"), jsonData);
         Request request = new Request.Builder()
-                .url("http://172.10.7.13:80/ChattingRoomList") // Replace with your actual Flask server endpoint
+                .url("http://172.10.7.13:80/Chats") // Replace with your actual Flask server endpoint
                 .post(formBody)
                 .build();
 
@@ -146,22 +164,27 @@ public class ChattingFragment extends Fragment {
 
                             // Process each item in the data array
                             for (int i = 0; i < dataArray.length(); i++) {
-                                JSONObject roomObject = dataArray.getJSONObject(i);
+                                JSONObject chatObject = dataArray.getJSONObject(i);
 
-                                String chatroom_id = roomObject.getString("chatroom_id");
-                                String roomName = roomObject.getString("roomname");
+                                String sender = chatObject.getString("nickname");
+                                String content = chatObject.getString("contents");
+                                String sendtime = chatObject.getString("send_time");
 
-                                // Create a ChatRoom object or use your existing model class
-                                ChatRoom chatRoom = new ChatRoom(roomName,chatroom_id);
+                                Chat chat = new Chat(sender,content,sendtime);
 
                                 // Assuming you have a method to update the RecyclerView on the main thread
                                 getActivity().runOnUiThread(() -> {
                                     // Add the ChatRoom to your RecyclerView adapter
-                                    chatRoomAdapter.addChatRoom(chatRoom);
+                                    chattingAdapter.addChat(chat);
+                                });
+
+
+                                getActivity().runOnUiThread(() -> {
+
                                 });
                             }
                         } else {
-                            Log.d("Chatting_fragmentERR","error");
+                            Log.d("Chattingss_fragmentERR","error");
                         }
 
                     } catch (JSONException e) {
@@ -175,34 +198,19 @@ public class ChattingFragment extends Fragment {
         return view;
     }
 
-    private void switchToNextFragment(String chatroomId, String roomName) {
-        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-        ChattingRoomFragment nextFragment = new ChattingRoomFragment();
-        Bundle args = new Bundle();
-        args.putString("chatroomId", chatroomId);
-        args.putString("roomName", roomName);
-        nextFragment.setArguments(args);
-
-        fragmentTransaction.replace(R.id.fragment_container, nextFragment);
-        fragmentTransaction.addToBackStack(null);
-        fragmentTransaction.commit();
-    }
-
-
-    private final Emitter.Listener onJoinRoom = new Emitter.Listener() {
+    private final Emitter.Listener onReceiveMessege = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
             try {
                 JSONObject data = (JSONObject) args[0];
-                String roomName=data.getString("roomname");
-                String roomId=data.getString("room_id");
-                ChatRoom newChatRoom = new ChatRoom(roomName,roomId);
-                Log.d("joinRoom","tttttt");
-
+                String chatroom_id=data.getString("chatroom_id");
+                String sender_id=data.getString("sender_id");
+                String contents=data.getString("contents");
+                String sender_name=data.getString("nickname");
+                Chat newChat = new Chat(sender_name,chatroom_id,contents);
+                Log.d("receivemessage","tttttt");
                 // Update the RecyclerView on the main thread
-                getActivity().runOnUiThread(() -> chatRoomAdapter.addChatRoomFirst(newChatRoom));
+                getActivity().runOnUiThread(() -> chattingAdapter.addChat(newChat));
             } catch(JSONException e) {
                 e.printStackTrace();
                 Log.e("ChattingFragment", "JSONException: " + e.getMessage());

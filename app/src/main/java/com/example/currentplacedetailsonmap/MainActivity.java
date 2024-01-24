@@ -39,6 +39,10 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity {
     private Socket mSocket;
     private LocationUpdateListener locationUpdateListener;
+
+    public Socket getSocket() {
+        return mSocket;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -108,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
 
         mSocket.on(Socket.EVENT_CONNECT, args -> {
             Log.d("Socket.IO", "Connected");
-            mSocket.emit("message", "Hello, Server!"); // Sending a message
+            Log.d("Socket.IO", "socketid "+mSocket);
         });
 
         mSocket.on("locationUpdate", args -> {
@@ -131,16 +135,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mSocket.on("message", args -> {
+        /*mSocket.on("message", args -> {
             String message = (String) args[0];
             Log.d("Socket.IO", "Received message: " + message);
 
             runOnUiThread(() -> showToast("Received message: " + message));
-        });
+        });*/
 
         mSocket.on(Socket.EVENT_DISCONNECT, args -> {
             Log.d("Socket.IO", "Disconnected");
         });
+
 
 
 
