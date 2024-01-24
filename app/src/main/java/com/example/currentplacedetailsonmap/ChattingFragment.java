@@ -55,7 +55,7 @@ public class ChattingFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(chatRoomAdapter);
 
-        ((MainActivity) requireActivity()).getSocket().on("joinRoom", onJoinRoom);
+        ((MainActivity) requireActivity()).getmSocket().on("joinRoom", onJoinRoom);
 
         Button addButton = view.findViewById(R.id.createBtn);
         CardView centeredCardView = view.findViewById(R.id.centeredCardView);
@@ -93,7 +93,7 @@ public class ChattingFragment extends Fragment {
                     eventData.put("locationroomId", locationroomId);
                     eventData.put("roomName", roomName);
 
-                    ((MainActivity) requireActivity()).getSocket().emit("createRoom", eventData);
+                    ((MainActivity) requireActivity()).getmSocket().emit("createRoom", eventData);
 
                     Log.d("Socket createRoom", "createRoom event emitted successfully");
                } catch (JSONException e) {

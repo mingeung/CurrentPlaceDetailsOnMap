@@ -1,8 +1,6 @@
 package com.example.currentplacedetailsonmap;
-
 import static com.example.currentplacedetailsonmap.LoginActivity.KEY_USER_ID;
 import static com.example.currentplacedetailsonmap.LoginActivity.PREF_NAME;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,17 +17,13 @@ import android.os.AsyncTask;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 public class MainActivity extends AppCompatActivity {
     private  static Socket mSocket;
     private LocationUpdateListener locationUpdateListener;
 
-<<<<<<< HEAD
-    public Socket getSocket() {
-=======
+
     //소켓을 반환하는 메소드
     public static Socket getmSocket() {
->>>>>>> upstream/main
         return mSocket;
     }
     @Override
@@ -45,9 +39,7 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             Fragment selectedFragment = null;
-
             int itemId = item.getItemId();
-
             if (itemId == R.id.navigation_maps) {
                 selectedFragment = new MapsFragment();
             } else if (itemId == R.id.navigation_chat) {
@@ -55,44 +47,34 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.navigation_mypage) {
                 selectedFragment = new MypageFragment();
             }
-
             if (selectedFragment != null) {
                 getSupportFragmentManager().beginTransaction()
                         .replace(R.id.fragment_container, selectedFragment)
                         .commit();
             }
-
             return true;
         });
         // Set the default fragment
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fragment_container, new MapsFragment())
                 .commit();
-
         new ConnectSocketIOAsyncTask(userId).execute();
     }
-
     // SharedPreferences에서 사용자 ID 읽어오는 메서드
     private String getUserIdFromSharedPreferences() {
         SharedPreferences sharedPreferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         return sharedPreferences.getString(KEY_USER_ID, "");
     }
-
-
     // 내부 인터페이스로 LocationUpdateListener 선언
     public interface LocationUpdateListener {
         void onLocationUpdate(double latitude, double longitude);
     }
-
-
     private class ConnectSocketIOAsyncTask extends AsyncTask<Void, Void, Void> {
         private String userId;
-
         // 생성자를 통해 userId를 전달받도록 변경
         public ConnectSocketIOAsyncTask(String userId) {
             this.userId = userId;
         }
-
         @Override
         protected Void doInBackground(Void... params) {
             // 백그라운드 작업 수행
@@ -105,18 +87,6 @@ public class MainActivity extends AppCompatActivity {
             connectSocketIO();
         }
         private void connectSocketIO() {
-
-<<<<<<< HEAD
-        mSocket.on(Socket.EVENT_CONNECT, args -> {
-            Log.d("Socket.IO", "Connected");
-            Log.d("Socket.IO", "socketid "+mSocket);
-        });
-
-        mSocket.on("locationUpdate", args -> {
-            Log.d("Socket.IO", "사용자 위치 불러오기 시도"); //여기를 try조차 하고 있지 않다.
-            JSONObject data = (JSONObject) args[0];
-=======
->>>>>>> upstream/main
             try {
                 URI uri = new URI("http://172.10.7.13:80");
                 mSocket = IO.socket(uri);
@@ -124,28 +94,15 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
                 return;
             }
-
-<<<<<<< HEAD
-        /*mSocket.on("message", args -> {
-            String message = (String) args[0];
-            Log.d("Socket.IO", "Received message: " + message);
-
-            runOnUiThread(() -> showToast("Received message: " + message));
-        });*/
-=======
             mSocket.on(Socket.EVENT_CONNECT, args -> {
                 Log.d("Socket.IO", "Connected");
             });
-
             mSocket.on("locationUpdate", args -> {
                 Log.d("Socket.IO", "사용자 위치 불러오기 시도");
                 JSONObject data = (JSONObject) args[0];
                 try {
->>>>>>> upstream/main
-
                     double latitude = data.getDouble("latitude");
                     double longitude = data.getDouble("longitude");
-
                     if (locationUpdateListener != null) {
                         runOnUiThread(() -> {
                             locationUpdateListener.onLocationUpdate(latitude, longitude);
@@ -157,34 +114,24 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("Socket.IO", "위치 소켓 Error parsing locationUpdate data: " + e.getMessage());
                 }
             });
-
             mSocket.on("message", args -> {
                 String message = (String) args[0];
                 Log.d("Socket.IO", "Received message: " + message);
-
                 runOnUiThread(() -> showToast("Received message: " + message));
             });
             //여기 userid가 필요함
             mSocket.emit("setUser", userId);
 
 
-<<<<<<< HEAD
-
-
-        mSocket.connect();
-=======
             mSocket.on(Socket.EVENT_DISCONNECT, args -> {
                 Log.d("Socket.IO", "Disconnected");
             });
             mSocket.connect();
         }
->>>>>>> upstream/main
     }
-
     private void showToast(String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();

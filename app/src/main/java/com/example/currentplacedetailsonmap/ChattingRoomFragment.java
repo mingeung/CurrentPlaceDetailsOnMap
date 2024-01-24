@@ -56,7 +56,7 @@ public class ChattingRoomFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(chattingAdapter);
 
-        ((MainActivity) requireActivity()).getSocket().on("receivemessege", onReceiveMessege);
+        ((MainActivity) requireActivity()).getmSocket().on("receivemessege", onReceiveMessege);
 
         Button sendButton = view.findViewById(R.id.sendButton);
         CardView centeredCardView = view.findViewById(R.id.centeredCardView);
@@ -92,7 +92,7 @@ public class ChattingRoomFragment extends Fragment {
                     eventData.put("roomId", chatroomId);
                     eventData.put("roomName", roomName);
 
-                    ((MainActivity) requireActivity()).getSocket().emit("invitation", eventData);
+                    ((MainActivity) requireActivity()).getmSocket().emit("invitation", eventData);
 
                     Log.d("Socket invitation", "createRoom event emitted successfully");
                 } catch (JSONException e) {
@@ -118,7 +118,7 @@ public class ChattingRoomFragment extends Fragment {
                     eventData.put("content", content);
                     eventData.put("category", category);
 
-                    ((MainActivity) requireActivity()).getSocket().emit("message", eventData);
+                    ((MainActivity) requireActivity()).getmSocket().emit("message", eventData);
 
                     Log.d("Socket message", "message event emitted successfully");
                 } catch (JSONException e) {

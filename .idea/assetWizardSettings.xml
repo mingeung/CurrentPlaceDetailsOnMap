@@ -11,12 +11,6 @@
                   <entry key="vectorAssetStep">
                     <value>
                       <PersistentState>
-<<<<<<< HEAD
-                        <option name="values">
-                          <map>
-                            <entry key="outputName" value="ic_chat" />
-                            <entry key="sourceFile" value="C:\Users\Kim Seoyeon\Desktop\Madcamp\CurrentPlaceDetailsOnMap" />
-=======
                         <option name="children">
                           <map>
                             <entry key="clipartAsset">
@@ -24,7 +18,7 @@
                                 <PersistentState>
                                   <option name="values">
                                     <map>
-                                      <entry key="url" value="file:$USER_HOME$/Library/Android/sdk/icons/material/materialicons/chat/baseline_chat_24.xml" />
+                                      <entry key="url" value="file:$USER_HOME$/Library/Android/sdk/icons/material/materialicons/mode_edit_outline/baseline_mode_edit_outline_24.xml" />
                                     </map>
                                   </option>
                                 </PersistentState>
@@ -34,8 +28,7 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_chat" />
->>>>>>> upstream/main
+                            <entry key="outputName" value="ic_edit" />
                           </map>
                         </option>
                       </PersistentState>

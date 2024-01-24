@@ -3,60 +3,134 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
 
-    <!-- 사용자 사진 -->
-    <ImageView
-        android:id="@+id/profileImageView"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:src="@drawable/default_profile_image"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp"/>
-
-    <!-- 'My Profile' 텍스트 -->
-    <TextView
-        android:id="@+id/profileTitleTextView"
-        android:layout_width="wrap_content"
+    >
+    <!-- 박스 레이아웃 -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="My Profile"
-        android:textSize="24sp"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp"/>
+        android:orientation="vertical"
+        android:background="@drawable/rounded_box"
+        android:padding="16dp"
+        android:clipToPadding="false"
+        android:clipChildren="false"
+        android:elevation="4dp"
+        android:outlineProvider="background">
 
-    <!-- 아이디 -->
-    <TextView
-        android:id="@+id/usernameTextView"
-        android:layout_width="wrap_content"
+    <!-- 상단 레이아웃 -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Hanie"
-        android:textSize="18sp"
-        android:layout_marginBottom="8dp"/>
+        android:orientation="horizontal"
+        android:gravity="start"
 
-    <!-- 이메일 -->
-    <TextView
-        android:id="@+id/emailTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="johndoe@example.com"
-        android:textSize="18sp"
-        android:layout_marginBottom="16dp"/>
+        >
 
-    <!-- 수정 버튼 -->
-    <Button
-        android:id="@+id/editButton"
-        android:layout_width="wrap_content"
+        <!-- 'My Profile' 텍스트 -->
+        <TextView
+            android:id="@+id/profileTitleTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="My Profile"
+            android:textSize="24sp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="16dp"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            />
+
+        <!-- 수정 버튼 -->
+        <Button
+            android:id="@+id/editButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="수정"
+            android:layout_gravity="end"
+            android:drawableLeft="@drawable/ic_edit"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:backgroundTint="@color/white"
+            android:tint="@color/main_color"
+            android:textColor="@color/main_color"
+            />
+
+    </LinearLayout>
+
+    <!-- 사용자 정보 -->
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="수정"
-        android:layout_gravity="end"
-        android:layout_marginBottom="16dp"/>
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- 사용자 사진 -->
+        <ImageView
+            android:id="@+id/profileImageView"
+            android:layout_width="110dp"
+            android:layout_height="110dp"
+            android:src="@drawable/default_profile_image"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="16dp"
+            android:background="@drawable/circular_background"
+            android:clipToOutline="true"
+            android:elevation="10dp"
+            />
+
+        <!-- 아이디, 이메일 정보 -->
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="16dp"
+            >
+
+            <!-- 아이디 -->
+            <TextView
+                android:id="@+id/usernameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hanie"
+                android:textSize="18sp"
+                android:layout_marginBottom="8dp"
+                android:textColor="@color/white"/>
+            <!-- 흰색 선 -->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/white"
+                android:layout_marginRight="40dp"/>
+
+            <!-- 이메일 -->
+            <TextView
+                android:layout_marginTop="10dp"
+                android:id="@+id/emailTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="johndoe@example.com"
+                android:textSize="18sp"
+                android:layout_marginBottom="16dp"
+                android:textColor="@color/white"/>
+        </LinearLayout>
+
+    </LinearLayout>
+    </LinearLayout>
 
     <!-- 로그아웃 버튼 -->
     <Button
         android:id="@+id/logoutButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginBottom="16dp"
+        android:background="@android:color/transparent"
         android:text="로그아웃"
-        android:layout_gravity="end"/>
+        android:textColor="@color/main_color"
+        android:textStyle="bold"
+        android:underlineText="true"
+        android:textColorLink="@color/main_color"
+        />
+
 
 </LinearLayout>

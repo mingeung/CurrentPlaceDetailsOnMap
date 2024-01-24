@@ -24,4 +24,11 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
+    <!-- AppTheme.NoActionBar 스타일 정의 -->
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+
 </resources>

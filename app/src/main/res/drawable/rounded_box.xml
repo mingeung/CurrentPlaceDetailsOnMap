@@ -1,0 +1,27 @@
+<!-- res/drawable/rounded_box.xml -->
+<!--<shape xmlns:android="http://schemas.android.com/apk/res/android">-->
+<!--    <solid android:color="@color/main_color" /> &lt;!&ndash; main_color로 배경색 설정 &ndash;&gt;-->
+<!--    <corners android:radius="30dp" /> &lt;!&ndash; radius 설정 &ndash;&gt;-->
+<!--</shape>-->
+
+<!-- res/drawable/rounded_box.xml -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape>
+            <gradient
+                android:startColor="#1AB3B3"
+            android:endColor="#1AB37F"
+            android:angle="270" />
+            <corners android:bottomLeftRadius="30dp" android:bottomRightRadius="30dp" /> <!-- 상단의 radius 설정 -->
+        </shape>
+    </item>
+    <item android:bottom="30dp"> <!-- 아래쪽의 사각형 부분을 그리는데 상단에 30dp 만큼 이동시킴 -->
+        <shape>
+            <gradient
+                android:startColor="#1AB3B3"
+                android:endColor="#1AB37F"
+                android:angle="270" />
+            <corners android:radius="30dp" /> <!-- radius 설정 -->
+        </shape>
+    </item>
+</layer-list>
