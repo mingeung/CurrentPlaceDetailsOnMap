@@ -128,7 +128,6 @@
         android:text="로그아웃"
         android:textColor="@color/main_color"
         android:textStyle="bold"
-        android:underlineText="true"
         android:textColorLink="@color/main_color"
         />
 
