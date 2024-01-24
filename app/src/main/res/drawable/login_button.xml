@@ -1,0 +1,8 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="30dp" />
+    <gradient
+        android:startColor="#1AB37F"
+        android:endColor="#70B31A"
+        android:angle="270" /> <!-- 반지름 값을 조절하여 버튼의 모양을 동그랗게 만듭니다 -->
+</shape>
