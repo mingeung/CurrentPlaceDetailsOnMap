@@ -30,16 +30,11 @@ public class LoginActivity extends AppCompatActivity {
     public static final String PREF_NAME = "MyPrefs";
     // SharedPreferences에 저장할 키 값
     public static final String KEY_USER_ID = "userId";
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
     }
-
-
     // "로그인" 버튼을 클릭했을 때 호출되는 메서드
     public void onLoginButtonClick(View view) {
         // 사용자 입력 데이터 가져오기
@@ -73,6 +68,8 @@ public class LoginActivity extends AppCompatActivity {
                             // 로그인 성공 시
                             runOnUiThread(() -> {
                                 Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
+                                // 사용자 ID를 SharedPreferences에 저장
+                                saveUserIdToSharedPreferences(user_id);
                                 // MainActivity로 이동하는 Intent 생성
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 // MainActivity로 이동
@@ -104,6 +101,11 @@ public class LoginActivity extends AppCompatActivity {
                 });
             }
         });
+        // MainActivity로 이동하는 Intent 생성
+        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+        // MainActivity로 이동
+        startActivity(intent);
+        // LoginActivity 종료 (뒤로 가기 시 LoginActivity로 가지 않도록)
     }
 
     // SharedPreferences에 사용자 ID 저장하는 메서드

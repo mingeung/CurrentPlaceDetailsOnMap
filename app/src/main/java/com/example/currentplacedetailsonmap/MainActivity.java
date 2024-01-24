@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
         // SharedPreferences에서 사용자 ID 읽어오기
         String userId = getUserIdFromSharedPreferences();
+        Log.d("MainActivity", "사용자 ID: " + userId);
 
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -141,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
             });
             //여기 userid가 필요함
             mSocket.emit("setUser", userId);
+
 
             mSocket.on(Socket.EVENT_DISCONNECT, args -> {
                 Log.d("Socket.IO", "Disconnected");
