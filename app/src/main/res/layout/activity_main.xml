@@ -31,8 +31,8 @@
         android:layout_alignParentBottom="true"
         app:menu="@menu/bottom_nav_menu"
         app:backgroundTint="@android:color/white"
-        app:itemIconTint="@color/main_color"
-        app:itemTextColor="@color/main_color"
+        app:itemIconTint="@color/gray"
+        app:itemTextColor="@color/gray"
         />
 
 

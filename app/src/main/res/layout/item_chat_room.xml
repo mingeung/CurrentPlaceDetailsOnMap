@@ -5,36 +5,69 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/textViewRoomName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="은우"
+            android:textSize="18sp"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            android:layout_marginBottom="5dp"
+            />
+
+        <TextView
+            android:id="@+id/timeStamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="end"
+            android:text="오후 7:20"
+            android:textSize="14sp"
+            android:textColor="@android:color/black"/>
+    </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
 
+    <TextView
+        android:id="@+id/previewText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="1시에 보자"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:layout_gravity="start"
+        />
         <TextView
-            android:id="@+id/textViewRoomName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textColor="@android:color/black" />
+            android:id="@+id/uncheckedChat"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:background="@drawable/unchecked_chat"
+            android:gravity="center"
+            android:text="3"
+            android:textColor="@android:color/white"
+            android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/chatroomId"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:visibility="gone"/>
-
-        <!-- 세 번째 TextView -->
-        <TextView
-            android:id="@+id/locationroomId"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:visibility="gone"/>
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/chatroomId"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:visibility="gone"/>
 
 </LinearLayout>

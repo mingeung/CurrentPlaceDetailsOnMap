@@ -23,6 +23,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="start"
+        android:layout_marginBottom="20dp"
 
         >
 
@@ -75,6 +76,7 @@
             android:background="@drawable/circular_background"
             android:clipToOutline="true"
             android:elevation="10dp"
+            android:layout_marginRight="20dp"
             />
 
         <!-- 아이디, 이메일 정보 -->

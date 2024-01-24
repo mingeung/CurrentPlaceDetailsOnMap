@@ -21,4 +21,6 @@
     <color name="colorAccent">#FF4081</color>
     <color name="main_color">#1AB37F</color>
     <color name="white">#ffffff</color>
+    <color name="gray">#2B2B2B</color>
+    <color name="uncheckedChat">#033F3E</color>
 </resources>
