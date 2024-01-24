@@ -35,7 +35,5 @@
         app:itemTextColor="@color/gray"
         />
 
-
-
 </RelativeLayout>
 
