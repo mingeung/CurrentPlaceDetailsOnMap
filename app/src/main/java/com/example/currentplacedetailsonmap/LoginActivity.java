@@ -44,13 +44,13 @@ public class LoginActivity extends AppCompatActivity {
         // OkHttp를 사용하여 백엔드로 데이터 전송
         OkHttpClient client = new OkHttpClient();
 
-        String url = "http://172.10.7.13:80/login";
+        String url = "http://172.10.5.162:80/login";
 
         String jsonData = String.format("{\"user_id\":\"%s\", \"password\": \"%s\"}", user_id, password);
 
         RequestBody formBody = RequestBody.create(MediaType.parse("application/json"), jsonData);
         Request request = new Request.Builder()
-                .url("http://172.10.7.13:80/login")
+                .url("http://172.10.5.162:80/login")
                 .post(formBody)
                 .build();
 
@@ -70,6 +70,7 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.makeText(LoginActivity.this, message, Toast.LENGTH_SHORT).show();
                                 // 사용자 ID를 SharedPreferences에 저장
                                 saveUserIdToSharedPreferences(user_id);
+
                                 // MainActivity로 이동하는 Intent 생성
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 // MainActivity로 이동
@@ -101,11 +102,6 @@ public class LoginActivity extends AppCompatActivity {
                 });
             }
         });
-        // MainActivity로 이동하는 Intent 생성
-        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-        // MainActivity로 이동
-        startActivity(intent);
-        // LoginActivity 종료 (뒤로 가기 시 LoginActivity로 가지 않도록)
     }
 
     // SharedPreferences에 사용자 ID 저장하는 메서드

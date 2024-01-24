@@ -49,12 +49,12 @@ public class SignupActivity extends AppCompatActivity {
         OkHttpClient client = new OkHttpClient();
 
         // Replace "your_server_url" with your server's URL and "/signup" with your signup route
-        String url = "http://172.10.7.13:80/signup";
+        String url = "http://172.10.5.162:80/signup";
 
         String jsonData = String.format("{\"user_id\":\"%s\", \"email\": \"%s\", \"nickname\":\"%s\", \"password\":\"%s\"}", user_id, email, nickname, password);
         RequestBody formBody = RequestBody.create(MediaType.parse("application/json"), jsonData);
         Request request = new Request.Builder()
-                .url("http://172.10.7.13:80/signup")
+                .url("http://172.10.5.162:80/signup")
                 .post(formBody)
                 .build();
 

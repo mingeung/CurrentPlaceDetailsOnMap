@@ -143,7 +143,7 @@ public class MypageFragment extends Fragment {
 
         // HTTP 요청 설정
         Request request = new Request.Builder()
-                .url("http://172.10.7.13:80/uploadProfileImage")
+                .url("http://172.10.5.162:80/uploadProfileImage")
                 .post(multipartBody)
                 .build();
 

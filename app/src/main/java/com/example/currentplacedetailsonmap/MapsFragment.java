@@ -64,14 +64,13 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     private MainActivity.LocationUpdateListener locationUpdateListener;
     //지도에 표시할 마커 목록
     private List<Marker> otherUsersMarkers = new ArrayList<>();
-
-
+    // 맵 위에 사용자 마커를 저장할 변수
+    private Marker userMarker;
 
     public static MapsFragment newInstance() {
         MapsFragment fragment = new MapsFragment();
         return fragment;
     }
-
 
 
 // 해당 Fragment가 처음으로 생성될 때 호출되며, 지도와 관련된 초기화 작업을 수행
@@ -103,13 +102,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-
-
         return rootView;
     }
 
     private void sendLocationUpdate(LatLng location) {
-        int locationroomId = 1;  // 테스트에 사용할 locationroomId로 업데이트
+        // 테스트에 사용할 locationroomId로 업데이트
+        String locationroomId = "rwMPmZ2L76vLm99eI983BRl415oEKhkDJqU1";
         // MapsFragment에서 저장된 userId 불러오기
         String userId = getSavedUserId();
         Log.d("MapsFragment", "User ID from SharedPreferences: " + userId);
@@ -130,6 +128,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             }
             // 서버로 위치 업데이트 이벤트('updateLocation')를 발송
             mSocket.emit("askLocationUpdate", locationData);
+            // 사용자 마커의 위치 업데이트
+//            userMarker.setPosition(location);
+
             // 위치 업데이트 로그
             Log.d("websocketLocation", "Location update sent to server - Latitude: " + location.latitude + ", Longitude: " + location.longitude);
         } else {
@@ -199,7 +200,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         // 소켓이 null인 경우 초기화
         if (mSocket == null) {
             try {
-                URI uri = new URI("http://172.10.7.13:80");
+                URI uri = new URI("http://172.10.5.162:80");
                 mSocket = IO.socket(uri);
             } catch (URISyntaxException e) {
                 e.printStackTrace();
@@ -262,6 +263,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             Log.e("Socket.IO", "Error updating other users marker: " + e.getMessage());
         }
     }
+    // 사용자 마커 업데이트
+
 
 
     private void removeOtherUsersMarkers() {
@@ -360,14 +363,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
         updateLocationUI();
     }
-    private void showCurrentPlace() {
-        // Implement your logic for showing current place here
-    }
-
-    private void openPlacesDialog() {
-        // Implement your logic for opening places dialog here
-    }
-
     private void updateLocationUI() {
         if (map == null) {
             return;

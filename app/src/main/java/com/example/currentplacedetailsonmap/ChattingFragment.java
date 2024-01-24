@@ -116,7 +116,7 @@ public class ChattingFragment extends Fragment {
         String jsonData = String.format("{\"user_id\": \"%s\"}",user_id);
         RequestBody formBody = RequestBody.create(MediaType.parse("application/json"), jsonData);
         Request request = new Request.Builder()
-                .url("http://172.10.7.13:80/ChattingRoomList") // Replace with your actual Flask server endpoint
+                .url("http://172.10.5.162:80/ChattingRoomList") // Replace with your actual Flask server endpoint
                 .post(formBody)
                 .build();
 

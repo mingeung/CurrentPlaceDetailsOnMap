@@ -2,14 +2,11 @@ package com.example.currentplacedetailsonmap;
 import static com.example.currentplacedetailsonmap.LoginActivity.KEY_USER_ID;
 import static com.example.currentplacedetailsonmap.LoginActivity.PREF_NAME;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -22,8 +19,6 @@ import org.json.JSONObject;
 public class MainActivity extends AppCompatActivity {
     private  static Socket mSocket;
     private LocationUpdateListener locationUpdateListener;
-
-
     //소켓을 반환하는 메소드
     public static Socket getmSocket() {
         return mSocket;
@@ -35,8 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
         // SharedPreferences에서 사용자 ID 읽어오기
         String userId = getUserIdFromSharedPreferences();
-        Log.d("MainActivity", "사용자 ID: " + userId);
-
+        Log.d("MainActivity", "사용자 ID: " + userId); //여기서 잘 불러와진다.
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
@@ -92,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
         }
         private void connectSocketIO() {
             try {
-                URI uri = new URI("http://172.10.7.13:80");
+                URI uri = new URI("http://172.10.5.162:80");
                 mSocket = IO.socket(uri);
             } catch (URISyntaxException e) {
                 e.printStackTrace();
@@ -125,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
             });
             //여기 userid가 필요함
             mSocket.emit("setUser", userId);
-
+            Log.d("MainAcitivty", "socket 사용자 아이디" + userId);
 
             mSocket.on(Socket.EVENT_DISCONNECT, args -> {
                 Log.d("Socket.IO", "Disconnected");
