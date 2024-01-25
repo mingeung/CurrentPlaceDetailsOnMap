@@ -244,6 +244,7 @@ public class ChattingFragment extends Fragment {
                 getActivity().runOnUiThread(() -> {
                     // Add the ChatRoom to your RecyclerView adapter
                     chatRoomAdapter.addChatRoomFirst(newChatRoom);
+                    recyclerView.scrollToPosition(0);
                 });
             } catch(JSONException e) {
                 e.printStackTrace();

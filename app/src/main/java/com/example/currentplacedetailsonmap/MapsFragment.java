@@ -239,31 +239,31 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void updateOtherUsersMarker(LatLng location, String userId) {
-        try{
-            // 마커가 이미 추가되어 있다면 업데이트, 없다면 새로 추가
-            if (!otherUsersMarkers.isEmpty()) {
-                final Marker marker = otherUsersMarkers.get(0);  // 여러 마커가 있는 경우에 대한 처리를 추가해야 할 수 있습니다.
-                requireActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        marker.setPosition(location);
-                    }
-                });
+        requireActivity().runOnUiThread(() -> {
+            // 이 사용자에 대한 마커가 이미 있는지 확인
+            Marker existingMarker = findMarkerByUserId(userId);
+
+            if (existingMarker != null) {
+                // 마커가 이미 존재하면 위치를 업데이트합니다.
+                existingMarker.setPosition(location);
+                Log.d("Socket.IO", "사용자 마커 업데이트: " + userId + " - Latitude: " + location.latitude + ", Longitude: " + location.longitude);
             } else {
-                requireActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Marker newMarker = map.addMarker(new MarkerOptions().position(location).title(userId));
-                        otherUsersMarkers.add(newMarker);
-                    }
-                });
-            }}
-        catch (Exception e) {
-            e.printStackTrace();
-            Log.e("Socket.IO", "Error updating other users marker: " + e.getMessage());
-        }
+                // 마커가 존재하지 않으면 새로운 마커를 생성합니다.
+                Marker newMarker = map.addMarker(new MarkerOptions().position(location).title(userId));
+                otherUsersMarkers.add(newMarker);
+                Log.d("Socket.IO", "사용자 마커 생성: " + userId + " - Latitude: " + location.latitude + ", Longitude: " + location.longitude);
+            }
+        });
     }
-    // 사용자 마커 업데이트
+
+    private Marker findMarkerByUserId(String userId) {
+        for (Marker marker : otherUsersMarkers) {
+            if (marker.getTitle().equals(userId)) {
+                return marker;
+            }
+        }
+        return null; // 해당 사용자에 대한 마커를 찾을 수 없음
+    }
 
 
 

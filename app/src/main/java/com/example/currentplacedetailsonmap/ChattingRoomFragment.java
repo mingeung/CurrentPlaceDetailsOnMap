@@ -1,4 +1,3 @@
-//ChattingRoomFragment
 package com.example.currentplacedetailsonmap;
 import static com.example.currentplacedetailsonmap.LoginActivity.KEY_USER_ID;
 import static com.example.currentplacedetailsonmap.LoginActivity.PREF_NAME;
@@ -68,8 +67,10 @@ public class ChattingRoomFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.messageView);
         chattingAdapter = new ChattingAdapter(chattings);
+
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         recyclerView.setAdapter(chattingAdapter);
+
 
         ((MainActivity) requireActivity()).getmSocket().on("receivemessage", onReceiveMessege);
 
@@ -210,9 +211,12 @@ public class ChattingRoomFragment extends Fragment {
                                 getActivity().runOnUiThread(() -> {
                                     // Add the ChatRoom to your RecyclerView adapter
                                     chattingAdapter.addChat(chat);
+                                    int lastItemPosition = chattingAdapter.getItemCount() - 1;
+                                    recyclerView.scrollToPosition(lastItemPosition);
                                 });
 
                             }
+
                         } else {
                             Log.d("Chattingss_fragmentERR","error");
                         }
@@ -220,6 +224,7 @@ public class ChattingRoomFragment extends Fragment {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
+
 
                 }
             }
@@ -250,6 +255,8 @@ public class ChattingRoomFragment extends Fragment {
                 getActivity().runOnUiThread(() -> {
                     // Add the ChatRoom to your RecyclerView adapter
                     chattingAdapter.addChat(newChat);
+                    int lastItemPosition = chattingAdapter.getItemCount() - 1;
+                    recyclerView.scrollToPosition(lastItemPosition);
                 });
 
                 JSONObject eventData = new JSONObject();
