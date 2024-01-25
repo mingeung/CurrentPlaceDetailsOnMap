@@ -1,4 +1,6 @@
+
 package com.example.currentplacedetailsonmap;
+
 import static com.example.currentplacedetailsonmap.LoginActivity.KEY_USER_ID;
 import static com.example.currentplacedetailsonmap.LoginActivity.PREF_NAME;
 
@@ -204,8 +206,15 @@ public class ChattingRoomFragment extends Fragment {
                                 String sender = chatObject.getString("nickname");
                                 String content = chatObject.getString("contents");
                                 String sendtime = chatObject.getString("send_time");
+                                String sender_id = chatObject.getString("sender_id");
 
-                                Chat chat = new Chat(sender,content,sendtime.substring(11,16));
+                                int viewtype = 1;
+                                if(userId.equals(sender_id)){
+                                    viewtype = 2;
+                                }
+
+                                Chat chat = new Chat(sender,content,sendtime.substring(11,16),viewtype);
+                                Log.d("Chattingss_fragmentERR",sender_id+" "+userId+" "+String.valueOf(viewtype));
 
                                 // Assuming you have a method to update the RecyclerView on the main thread
                                 getActivity().runOnUiThread(() -> {
@@ -249,7 +258,12 @@ public class ChattingRoomFragment extends Fragment {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 String formattedDate = sdf.format(currentDate);
 
-                Chat newChat = new Chat(sender_name, contents, formattedDate.substring(11, 16));
+                int viewtype = 1;
+                if(userId.equals(sender_id)){
+                    viewtype = 2;
+                }
+
+                Chat newChat = new Chat(sender_name, contents, formattedDate.substring(11, 16),viewtype);
                 Log.d("receivemessage", "tttttt");
                 // Update the RecyclerView on the main thread
                 getActivity().runOnUiThread(() -> {

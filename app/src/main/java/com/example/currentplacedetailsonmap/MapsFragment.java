@@ -108,8 +108,8 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         String locationroomId = "rwMPmZ2L76vLm99eI983BRl415oEKhkDJqU1";
         // MapsFragment에서 저장된 userId 불러오기
         String userId = getSavedUserId();
-        Log.d("MapsFragment", "User ID from SharedPreferences: " + userId);
-        Log.d("MapsFragment", "RoomId" + locationroomId);
+//        Log.d("MapsFragment", "User ID from SharedPreferences: " + userId);
+//        Log.d("MapsFragment", "RoomId" + locationroomId);
 
         // socket이 초기화되었고 연결된 상태인지 확인
         if (mSocket != null && mSocket.connected()) {
@@ -120,10 +120,10 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 locationData.put("longitude", location.longitude);
                 locationData.put("userId", userId);
                 locationData.put("locationroomId", locationroomId);
-                Log.d("MapsFrgamnet", "위치 정보" + location.latitude + location.longitude);
+                Log.d("MapsFragment", "내 위치 정보" + location.latitude + location.longitude);
             } catch (JSONException e) {
                 e.printStackTrace();
-                Log.e("websocketLocation", "JSON Exception while creating location data: " + e.getMessage());
+//                Log.e("websocketLocation", "JSON Exception while creating location data: " + e.getMessage());
             }
             // 서버로 위치 업데이트 이벤트('updateLocation')를 발송
             mSocket.emit("askLocationUpdate", locationData);
@@ -131,7 +131,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             userMarker.setPosition(location);
 
             // 위치 업데이트 로그 -> 디바이스는 나오는데 에뮬레이터는 안 나모
-            Log.d("websocketLocation", "Location update sent to server - Latitude: " + location.latitude + ", Longitude: " + location.longitude);
+//            Log.d("websocketLocation", "Location update sent to server - Latitude: " + location.latitude + ", Longitude: " + location.longitude);
         } else {
             // 연결되지 않은 경우 에러 메시지 출력
             Log.e("websocketLocation", "Socket is not initialized or not connected");
@@ -222,7 +222,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 if (locationUpdateListener != null) {
                     requireActivity().runOnUiThread(() -> {
                         locationUpdateListener.onLocationUpdate(latitude, longitude);
-                        Log.d("Socket.IO", "다른 사용자 위치 소켓 LocationUpdateListener called - Latitude: " + latitude + ", Longitude: " + longitude);
+                        Log.d("MapsFragment", "다른 사용자 위치 소켓 LocationUpdateListener called - Latitude: " + latitude + ", Longitude: " + longitude);
                     });
                 }
             } catch (JSONException e) {
@@ -246,12 +246,12 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             if (existingMarker != null) {
                 // 마커가 이미 존재하면 위치를 업데이트합니다.
                 existingMarker.setPosition(location);
-                Log.d("Socket.IO", "사용자 마커 업데이트: " + userId + " - Latitude: " + location.latitude + ", Longitude: " + location.longitude);
+                Log.d("MapsFragment", "다른 사용자 마커 업데이트: " + userId + " - Latitude: " + location.latitude + ", Longitude: " + location.longitude);
             } else {
                 // 마커가 존재하지 않으면 새로운 마커를 생성합니다.
                 Marker newMarker = map.addMarker(new MarkerOptions().position(location).title(userId));
                 otherUsersMarkers.add(newMarker);
-                Log.d("Socket.IO", "사용자 마커 생성: " + userId + " - Latitude: " + location.latitude + ", Longitude: " + location.longitude);
+                Log.d("MapsFragment", "다른 사용자 마커 생성: " + userId + " - Latitude: " + location.latitude + ", Longitude: " + location.longitude);
             }
         });
     }

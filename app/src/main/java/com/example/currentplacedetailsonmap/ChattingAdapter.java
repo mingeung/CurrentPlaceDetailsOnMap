@@ -22,7 +22,12 @@ public class ChattingAdapter extends RecyclerView.Adapter<ChattingAdapter.ViewHo
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chats, parent, false);
+        View view;
+        if(viewType == 1){
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_chats, parent, false);
+        }else{
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_mychats, parent, false);
+        }
         return new ViewHolder(view);
     }
 
@@ -38,6 +43,11 @@ public class ChattingAdapter extends RecyclerView.Adapter<ChattingAdapter.ViewHo
     @Override
     public int getItemCount() {
         return chattings.size();
+    }
+
+    public int getItemViewType(int position) {
+        // 여기에서 ChatRoom 객체의 itemType 값을 기반으로 뷰 유형을 반환
+        return chattings.get(position).getItemType();
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
