@@ -1,4 +1,10 @@
+//ChattingFragment
 package com.example.currentplacedetailsonmap;
+import static com.example.currentplacedetailsonmap.LoginActivity.KEY_USER_ID;
+import static com.example.currentplacedetailsonmap.LoginActivity.PREF_NAME;
+
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -19,7 +25,9 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import io.socket.client.IO;
@@ -37,13 +45,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-
 public class ChattingFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private ChatRoomAdapter chatRoomAdapter;
     //private Button addButton;
     private List<ChatRoom> chatRooms = new ArrayList<>();
+
 
     @Nullable
     @Override
@@ -56,6 +64,7 @@ public class ChattingFragment extends Fragment {
         recyclerView.setAdapter(chatRoomAdapter);
 
         ((MainActivity) requireActivity()).getmSocket().on("joinRoom", onJoinRoom);
+        //((MainActivity) requireActivity()).getmSocket().on("receivemessagee", onReceiveMessegee);
 
         Button addButton = view.findViewById(R.id.createBtn);
         CardView centeredCardView = view.findViewById(R.id.centeredCardView);
@@ -81,8 +90,9 @@ public class ChattingFragment extends Fragment {
             public void onClick(View v) {
                 centeredCardView.setVisibility(View.GONE);
 
-               try {
-                    String userId = "test"; //SharedPreference로 바꾸기
+                try {
+                    SharedPreferences preferences = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+                    String userId = preferences.getString(KEY_USER_ID, "");
                     String chatroomId = RandomStringUtil.generateRandomString(36);
                     String locationroomId = RandomStringUtil.generateRandomString(36);
                     String roomName = editText.getText().toString();
@@ -95,11 +105,12 @@ public class ChattingFragment extends Fragment {
 
                     ((MainActivity) requireActivity()).getmSocket().emit("createRoom", eventData);
 
+
                     Log.d("Socket createRoom", "createRoom event emitted successfully");
-               } catch (JSONException e) {
+                } catch (JSONException e) {
                     e.printStackTrace();
                     Log.e("Socket createRoom", "JSONException: " + e.getMessage());
-               }
+                }
                 editText.setText("");
             }
         });
@@ -107,12 +118,30 @@ public class ChattingFragment extends Fragment {
         chatRoomAdapter.setOnItemClickListener(chatRoom -> {
             String clickedChatroomId = chatRoom.getChatroomId();
             String clickedChatroomName = chatRoom.getRoomName();
+
+
+            try {
+                SharedPreferences preferences = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+                String userId = preferences.getString(KEY_USER_ID, "");
+
+                JSONObject eventData = new JSONObject();
+                eventData.put("userId", userId);
+                eventData.put("roomId", clickedChatroomId);
+                ((MainActivity) requireActivity()).getmSocket().emit("resetchecked", eventData);
+
+
+                //Log.d("Socket createRoom", "createRoom event emitted successfully");
+            } catch (JSONException e) {
+                e.printStackTrace();
+                //Log.e("Socket createRoom", "JSONException: " + e.getMessage());
+            }
             switchToNextFragment(clickedChatroomId,clickedChatroomName);
+
         });
 
         OkHttpClient client = new OkHttpClient();
-        //SharedPreferences preferences = requireActivity().getSharedPreferences("MyPreferences", Context.MODE_PRIVATE);
-        String user_id = "test";
+        SharedPreferences preferences = requireActivity().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        String user_id = preferences.getString(KEY_USER_ID, "");
         String jsonData = String.format("{\"user_id\": \"%s\"}",user_id);
         RequestBody formBody = RequestBody.create(MediaType.parse("application/json"), jsonData);
         Request request = new Request.Builder()
@@ -150,9 +179,15 @@ public class ChattingFragment extends Fragment {
 
                                 String chatroom_id = roomObject.getString("chatroom_id");
                                 String roomName = roomObject.getString("roomname");
+                                String timeStamp = roomObject.getString("last_time");
+                                String previewText = roomObject.getString("last_message");
+                                //String uncheckedChat = roomObject.getString("roomname");
+
+                                String lasttime=timeStamp.substring(11,16);
+
 
                                 // Create a ChatRoom object or use your existing model class
-                                ChatRoom chatRoom = new ChatRoom(roomName,chatroom_id);
+                                ChatRoom chatRoom = new ChatRoom(roomName,chatroom_id,lasttime,previewText);
 
                                 // Assuming you have a method to update the RecyclerView on the main thread
                                 getActivity().runOnUiThread(() -> {
@@ -198,15 +233,42 @@ public class ChattingFragment extends Fragment {
                 JSONObject data = (JSONObject) args[0];
                 String roomName=data.getString("roomname");
                 String roomId=data.getString("room_id");
-                ChatRoom newChatRoom = new ChatRoom(roomName,roomId);
+                String timeStamp = data.getString("last_time");
+                String previewText = data.getString("last_message");
+                //String uncheckedChat = data.getString("roomname");
+
+                ChatRoom newChatRoom = new ChatRoom(roomName,roomId,timeStamp,previewText);
                 Log.d("joinRoom","tttttt");
 
                 // Update the RecyclerView on the main thread
-                getActivity().runOnUiThread(() -> chatRoomAdapter.addChatRoomFirst(newChatRoom));
+                getActivity().runOnUiThread(() -> {
+                    // Add the ChatRoom to your RecyclerView adapter
+                    chatRoomAdapter.addChatRoomFirst(newChatRoom);
+                });
             } catch(JSONException e) {
                 e.printStackTrace();
                 Log.e("ChattingFragment", "JSONException: " + e.getMessage());
             }
         }
     };
+
+    /*private final Emitter.Listener onReceiveMessegee = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            Fragment currentFragment = getFragmentManager().findFragmentById(R.id.fragment_container);
+            if (currentFragment instanceof ChattingFragment) {
+                getActivity().runOnUiThread(() -> {
+                // Add the ChatRoom to your RecyclerView adapter
+                    ChattingFragment fragment = (ChattingFragment) currentFragment;
+                    FragmentTransaction ft = getFragmentManager().beginTransaction();
+                    ft.detach(fragment).attach(fragment).commit();
+                    Log.d("EEEE","새로고침");
+                } );
+            }
+            else {
+                // 적절한 처리를 수행하거나 오류를 로깅합니다.
+                Log.d("Error", "Current fragment is not an instance of ChattingFragment");
+            }
+        }
+    };*/
 }

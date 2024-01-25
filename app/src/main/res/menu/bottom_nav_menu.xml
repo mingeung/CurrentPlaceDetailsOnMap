@@ -1,15 +1,22 @@
 <!-- bottom_nav_menu.xml -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/navigation_maps"
         android:title="Map"
-        android:icon="@drawable/ic_map" />
+        android:icon="@drawable/ic_map"
+        app:iconTint="@drawable/selected_icon_color"
+        />
     <item
         android:id="@+id/navigation_chat"
         android:title="Chatting"
-        android:icon="@drawable/ic_chat" />
+        android:icon="@drawable/ic_chat"
+        app:iconTint="@drawable/selected_icon_color"
+        />
     <item
         android:id="@+id/navigation_mypage"
         android:title="Mypage"
-        android:icon="@drawable/ic_mypage" />
+        android:icon="@drawable/ic_mypage"
+        app:iconTint="@drawable/selected_icon_color"
+        />
 </menu>

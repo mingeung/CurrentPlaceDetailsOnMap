@@ -59,7 +59,7 @@ public class MypageFragment extends Fragment {
         profileTitleTextView = rootView.findViewById(R.id.profileTitleTextView);
         usernameTextView = rootView.findViewById(R.id.usernameTextView);
         emailTextView = rootView.findViewById(R.id.emailTextView);
-        editButton = rootView.findViewById(R.id.editButton);
+//        editButton = rootView.findViewById(R.id.editButton);
         logoutButton = rootView.findViewById(R.id.logoutButton);
 
         // 이미지뷰에 기본 프로필 이미지 설정

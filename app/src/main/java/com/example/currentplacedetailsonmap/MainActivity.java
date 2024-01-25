@@ -126,11 +126,11 @@ public class MainActivity extends AppCompatActivity {
                     Log.e("Socket.IO", "위치 소켓 Error parsing locationUpdate data: " + e.getMessage());
                 }
             });
-            mSocket.on("message", args -> {
+            /*mSocket.on("message", args -> {
                 String message = (String) args[0];
                 Log.d("Socket.IO", "Received message: " + message);
                 runOnUiThread(() -> showToast("Received message: " + message));
-            });
+            });*/
             //여기 userid가 필요함
             mSocket.emit("setUser", userId);
             Log.d("MainAcitivty", "socket 사용자 아이디" + userId);

@@ -1,3 +1,4 @@
+//ChatRoomAdapter.java
 package com.example.currentplacedetailsonmap;
 
 import android.view.LayoutInflater;
@@ -41,6 +42,9 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHo
         // 여기에서 실제 데이터를 바인딩하는 코드를 추가할 수 있습니다.
         holder.textViewRoomName.setText(chatRoom.getRoomName());
         holder.textViewRoomId.setText(chatRoom.getChatroomId());
+        holder.textViewTimeStamp.setText(chatRoom.getTimeStamp());
+        holder.textViewPreviewText.setText(chatRoom.getPreviewText());
+        //holder.textViewUncheckedChat.setText(String.valueOf(chatRoom.getUncheckedChat()));
 
         holder.itemView.setOnClickListener(v -> {
             if (onItemClickListener != null) {
@@ -60,10 +64,16 @@ public class ChatRoomAdapter extends RecyclerView.Adapter<ChatRoomAdapter.ViewHo
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView textViewRoomName;
         TextView textViewRoomId;
+        TextView textViewTimeStamp;
+        TextView textViewPreviewText;
+        //TextView textViewUncheckedChat;
         ViewHolder(View itemView) {
             super(itemView);
             textViewRoomName = itemView.findViewById(R.id.textViewRoomName);
             textViewRoomId = itemView.findViewById(R.id.chatroomId);
+            textViewTimeStamp = itemView.findViewById(R.id.timeStamp);
+            textViewPreviewText = itemView.findViewById(R.id.previewText);
+            //textViewUncheckedChat = itemView.findViewById(R.id.uncheckedChat);
         }
     }
 

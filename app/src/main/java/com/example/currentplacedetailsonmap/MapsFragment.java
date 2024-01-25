@@ -100,7 +100,6 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 Log.e(TAG, "Uncaught Exception: " + ex.getMessage(), ex);
             }
         });
-
         return rootView;
     }
 

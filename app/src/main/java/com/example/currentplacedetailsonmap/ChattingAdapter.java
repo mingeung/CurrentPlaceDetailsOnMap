@@ -1,3 +1,4 @@
+//ChattingAdapter.java
 package com.example.currentplacedetailsonmap;
 
 import android.view.LayoutInflater;
@@ -31,7 +32,7 @@ public class ChattingAdapter extends RecyclerView.Adapter<ChattingAdapter.ViewHo
         // 여기에서 실제 데이터를 바인딩하는 코드를 추가할 수 있습니다.
         holder.textViewSender.setText(chat.getSender());
         holder.textViewContent.setText(chat.getContent());
-        holder.textViewSendtime.setText(chat.getSender());
+        holder.textViewSendtime.setText(chat.getSendtime());
     }
 
     @Override
