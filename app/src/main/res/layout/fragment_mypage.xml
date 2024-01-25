@@ -42,19 +42,19 @@
             />
 
         <!-- 수정 버튼 -->
-        <Button
-            android:id="@+id/editButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="수정"
-            android:layout_gravity="end"
-            android:drawableLeft="@drawable/ic_edit"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:backgroundTint="@color/white"
-            android:tint="@color/main_color"
-            android:textColor="@color/main_color"
-            />
+<!--        <Button-->
+<!--            android:id="@+id/editButton"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="수정"-->
+<!--            android:layout_gravity="end"-->
+<!--            android:drawableLeft="@drawable/ic_edit"-->
+<!--            android:paddingStart="8dp"-->
+<!--            android:paddingEnd="8dp"-->
+<!--            android:backgroundTint="@color/white"-->
+<!--            android:tint="@color/main_color"-->
+<!--            android:textColor="@color/main_color"-->
+<!--            />-->
 
     </LinearLayout>
 
