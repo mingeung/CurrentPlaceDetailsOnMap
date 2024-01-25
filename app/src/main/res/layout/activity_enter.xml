@@ -6,6 +6,29 @@
     android:background="@color/white"
     >
 
+    <!-- PNG 파일을 표시할 ImageView -->
+    <ImageView
+        android:id="@+id/logoImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/MergeMap_logo1"
+        android:layout_marginTop="100dp"
+    />
+
+    <TextView
+        android:id="@+id/mergeMapTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/logoImageView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp"
+        android:text="Merge Map"
+        android:textStyle="bold"
+        android:textSize="24sp"
+        android:textColor="@color/main_color"
+    />
+
     <!-- 로그인 버튼 -->
     <Button
         android:id="@+id/loginButton"
@@ -16,10 +39,12 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_marginBottom="16dp"
+        android:layout_below="@id/mergeMapTextView"
         android:background="@drawable/white_rounded_button"
         android:textColor="@color/main_color"
         android:elevation="4dp"
         android:stateListAnimator="@null"
+        android:layout_marginTop="50dp"
     />
 
     <!-- 회원가입 버튼 -->

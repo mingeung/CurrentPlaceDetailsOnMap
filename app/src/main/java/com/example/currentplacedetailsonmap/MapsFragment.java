@@ -210,7 +210,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mSocket = MainActivity.getmSocket();
         //다른 사람 위치 정보 불러오기 -> 이 부분이 안 되고 있다.
         mSocket.on("getOtherlocation", args -> {
-            Log.d("Socket.IO", "다른 사용자 위치 불러오기 시도"); //이 밑이 안됨
+            Log.d("Socket.IO", "다른 사용자 위치 불러오기 시도");
             JSONObject data = (JSONObject) args[0];
             Log.d("Socket.IO", "다른 사용자 위치 데이터" + data);
             try {

@@ -82,7 +82,7 @@ public class MypageFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 // 수정 버튼 클릭 시 동작
-                Toast.makeText(getContext(), "수정 버튼 클릭", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getContext(), "수정 버튼 클릭", Toast.LENGTH_SHORT).show();
             }
         });
 
