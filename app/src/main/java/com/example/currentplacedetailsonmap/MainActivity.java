@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
 
-
             Fragment selectedFragment = null;
             int itemId = item.getItemId();
             if (itemId == R.id.navigation_maps) {

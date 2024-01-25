@@ -69,7 +69,7 @@ public class SignupActivity extends AppCompatActivity {
                     runOnUiThread(() -> {
                         Toast.makeText(SignupActivity.this, "회원가입 성공", Toast.LENGTH_SHORT).show();
                     });
-                    Intent intent = new Intent(SignupActivity.this, MainActivity.class);
+                    Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
 
                     startActivity(intent);
                 } else {

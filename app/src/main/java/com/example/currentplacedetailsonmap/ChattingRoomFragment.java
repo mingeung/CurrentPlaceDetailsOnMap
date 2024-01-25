@@ -1,6 +1,5 @@
-
+//ChattingRoomFragment.jaca
 package com.example.currentplacedetailsonmap;
-
 import static com.example.currentplacedetailsonmap.LoginActivity.KEY_USER_ID;
 import static com.example.currentplacedetailsonmap.LoginActivity.PREF_NAME;
 
