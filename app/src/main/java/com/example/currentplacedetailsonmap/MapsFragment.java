@@ -72,8 +72,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         return fragment;
     }
 
-
-// 해당 Fragment가 처음으로 생성될 때 호출되며, 지도와 관련된 초기화 작업을 수행
+    // 해당 Fragment가 처음으로 생성될 때 호출되며, 지도와 관련된 초기화 작업을 수행
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_maps, container, false);
@@ -122,6 +121,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 locationData.put("longitude", location.longitude);
                 locationData.put("userId", userId);
                 locationData.put("locationroomId", locationroomId);
+                Log.d("MapsFrgamnet", "위치 정보" + location.latitude + location.longitude);
             } catch (JSONException e) {
                 e.printStackTrace();
                 Log.e("websocketLocation", "JSON Exception while creating location data: " + e.getMessage());
@@ -129,9 +129,9 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             // 서버로 위치 업데이트 이벤트('updateLocation')를 발송
             mSocket.emit("askLocationUpdate", locationData);
             // 사용자 마커의 위치 업데이트
-//            userMarker.setPosition(location);
+            userMarker.setPosition(location);
 
-            // 위치 업데이트 로그
+            // 위치 업데이트 로그 -> 디바이스는 나오는데 에뮬레이터는 안 나모
             Log.d("websocketLocation", "Location update sent to server - Latitude: " + location.latitude + ", Longitude: " + location.longitude);
         } else {
             // 연결되지 않은 경우 에러 메시지 출력
@@ -155,7 +155,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         }
         super.onSaveInstanceState(outState);
     }
-//Google Map이 준비되었을 때 호출
+    //Google Map이 준비되었을 때 호출
     @Override
     public void onMapReady(GoogleMap googleMap) {
         try {
@@ -207,19 +207,20 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
                 return;
             }
         }
-
         mSocket = MainActivity.getmSocket();
-
         //다른 사람 위치 정보 불러오기 -> 이 부분이 안 되고 있다.
         mSocket.on("getOtherlocation", args -> {
-            Log.d("Socket.IO", "다른 사용자 위치 불러오기 시도");
+            Log.d("Socket.IO", "다른 사용자 위치 불러오기 시도"); //이 밑이 안됨
             JSONObject data = (JSONObject) args[0];
+            Log.d("Socket.IO", "다른 사용자 위치 데이터" + data);
             try {
                 double latitude = data.getDouble("latitude");
                 double longitude = data.getDouble("longitude");
+                String userId = data.getString("userId");
 
                 LatLng userLocation = new LatLng(latitude, longitude);
-                updateOtherUsersMarker(userLocation);if (locationUpdateListener != null) {
+                updateOtherUsersMarker(userLocation, userId);
+                if (locationUpdateListener != null) {
                     requireActivity().runOnUiThread(() -> {
                         locationUpdateListener.onLocationUpdate(latitude, longitude);
                         Log.d("Socket.IO", "다른 사용자 위치 소켓 LocationUpdateListener called - Latitude: " + latitude + ", Longitude: " + longitude);
@@ -238,26 +239,26 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
         mSocket.connect();
     }
 
-    private void updateOtherUsersMarker(LatLng location) {
+    private void updateOtherUsersMarker(LatLng location, String userId) {
         try{
-        // 마커가 이미 추가되어 있다면 업데이트, 없다면 새로 추가
-        if (!otherUsersMarkers.isEmpty()) {
-            final Marker marker = otherUsersMarkers.get(0);  // 여러 마커가 있는 경우에 대한 처리를 추가해야 할 수 있습니다.
-            requireActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    marker.setPosition(location);
-                }
-            });
-        } else {
-            requireActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    Marker newMarker = map.addMarker(new MarkerOptions().position(location).title("다른 사용자"));
-                    otherUsersMarkers.add(newMarker);
-                }
-            });
-        }}
+            // 마커가 이미 추가되어 있다면 업데이트, 없다면 새로 추가
+            if (!otherUsersMarkers.isEmpty()) {
+                final Marker marker = otherUsersMarkers.get(0);  // 여러 마커가 있는 경우에 대한 처리를 추가해야 할 수 있습니다.
+                requireActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        marker.setPosition(location);
+                    }
+                });
+            } else {
+                requireActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Marker newMarker = map.addMarker(new MarkerOptions().position(location).title(userId));
+                        otherUsersMarkers.add(newMarker);
+                    }
+                });
+            }}
         catch (Exception e) {
             e.printStackTrace();
             Log.e("Socket.IO", "Error updating other users marker: " + e.getMessage());
@@ -302,7 +303,7 @@ public class MapsFragment extends Fragment implements OnMapReadyCallback {
             locationUpdateTimer.purge();
         }
     }
-//현재 기기의 위치를 가져와 지도를 해당 위치로 이동
+    //현재 기기의 위치를 가져와 지도를 해당 위치로 이동
     private void getDeviceLocation() {
         try {
             // 위치 권한이 허용된 경우

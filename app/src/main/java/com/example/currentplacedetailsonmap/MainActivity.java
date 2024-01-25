@@ -21,8 +21,19 @@ public class MainActivity extends AppCompatActivity {
     private LocationUpdateListener locationUpdateListener;
     //소켓을 반환하는 메소드
     public static Socket getmSocket() {
+        if (mSocket == null) {
+            // 여기서 소켓이 초기화되지 않은 경우 초기화
+            try {
+                URI uri = new URI("http://172.10.5.162:80");
+                mSocket = IO.socket(uri);
+            } catch (URISyntaxException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
         return mSocket;
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,9 +93,11 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void result) {
             // UI 스레드에서 호출되는 메서드
-            connectSocketIO();
+//            connectSocketIO();
         }
         private void connectSocketIO() {
+
+            mSocket = getmSocket();
             try {
                 URI uri = new URI("http://172.10.5.162:80");
                 mSocket = IO.socket(uri);
@@ -95,8 +108,9 @@ public class MainActivity extends AppCompatActivity {
             mSocket.on(Socket.EVENT_CONNECT, args -> {
                 Log.d("Socket.IO", "Connected");
             });
+            //이부분 필요한가??
             mSocket.on("locationUpdate", args -> {
-                Log.d("Socket.IO", "사용자 위치 불러오기 시도");
+                Log.d("Socket.IO", "사용자 위치 불러오기 시도"); //여기가 안된다.
                 JSONObject data = (JSONObject) args[0];
                 try {
                     double latitude = data.getDouble("latitude");
